@@ -31,84 +31,202 @@
 
 ---
 
-## **Episode 1 Script: The Blueprint & The Aesthetic**
+## **نص الحلقة 1: المخطط الجمالي والتصميم (بالعامية المصرية)**
 
-**Title Idea:** Building a Flutter App with ATTITUDE: Neo-Brutalist BMI Calculator (Ep. 1)
-**Estimated Time:** 10 Minutes
+**فكرة العنوان:** بناء تطبيق فلاتر "بشخصية جامدة": حاسبة الـ BMI بستايل الـ Neo-Brutalism (حلقة 1)
+**الوقت المقدر:** 10 دقايق
 
-### **[0:00 - 1:30] The Hook & Introduction**
+### **[0:00 - 1:30] الدخلة والمقدمة**
 
-**(Visual: High-energy montage of the Brutalist BMI Calculator app in action. Fast cuts highlighting the bright yellow, thick black borders, and heavy shadows.)**
+**(مرئي: مونتاج فيه طاقة وحركة لتطبيق حاسبة الـ BMI وهو شغال. لقطات سريعة بتركز على اللون الأصفر الفاقع، البرواز الأسود التخين، والضل القوي.)**
 
-**Host:** "Forget everything you know about soft, rounded, minimal app design. Today, we are building with *attitude*. Welcome to the Brutalist BMI Calculator series."
+**المضيف:** "انسوا خالص أي حاجة تعرفوها عن ديزاينات التطبيقات الناعمة، واللي كلها دورانات وهدوء. النهاردة إحنا هنبني تطبيق 'بشخصية جامدة'. أهلاً بيكم في سلسلة حاسبة الـ BMI بستايل الـ Brutalist."
 
-**(Visual: Host on camera, smiling.)**
+**(مرئي: المضيف قدام الكاميرا وبيبتسم.)**
 
-**Host:** "Hey everyone! Over the next five episodes, we're going to tear down and rebuild a complete Flutter application from scratch. But this isn’t just any app. We are utilizing a design trend called 'Neo-Brutalism'—think stark contrasts, thick black borders, unapologetic typography, and hard shadows."
+**المضيف:** "يا أهلاً بالناس الجميلة! على مدار الـ 5 حلقات الجايين، هنفصص ونعيد بناء تطبيق فلاتر كامل من الصفر. بس ده مش أي تطبيق عادي. إحنا هنستخدم تريند في الديزاين اسمه 'Neo-Brutalism' — يعني تباين ألوان فاقع، برواز أسود تخين، خطوط جريئة، وضلال واضحة وصريحة."
 
-**(Visual: Screen recording showing the app transitioning from the splash screen to the main calculator interface.)**
+**(مرئي: تصوير شاشة بيورينا التطبيق وهو بينتقل من الـ Splash Screen لواجهة الحاسبة الأساسية.)**
 
-**Host:** "In this series, we’ll dive deep into the codebase. You're going to learn how to structure a Flutter project cleanly, build reusable custom design system widgets, implement complex clinical math, and tie it all together with a beautiful, responsive UI." 
+**المضيف:** "في السلسلة دي، هنغطس جوه الكود. هتتعلموا إزاي ترتبوا مشروع فلاتر بشكل نضيف، وإزاي تعملوا ويدجتس (Widgets) خاصة بيكم تعبر عن روح الديزاين، وكمان هننفذ معادلات طبية معقدة، وفي الآخر نربط كل ده بواجهة مستخدم شكلها شيك وسريعة."
 
-**Host:** "In this first episode, we're laying the foundation. We’ll look at the overall project architecture and break down our `main.dart` file to see how we inject this aggressive aesthetic globally right from the start. Let’s get into the code."
+**المضيف:** "في الحلقة الأولى دي، إحنا بنحط الأساس. هنشوف التقسيمة العامة للمشروع، وهنحلل ملف الـ `main.dart` عشان نعرف إزاي بنحط البصمة القوية دي في التطبيق كله من أول ثانية. يلا بينا نخش في الكود."
 
-### **[1:30 - 3:30] Project Overview & Architecture**
+### **[1:30 - 3:30] نظرة عامة على المشروع والمعمارية**
 
-**(Visual: Screen showing an IDE (like VS Code or Android Studio) with the project file tree expanded.)**
+**(مرئي: شاشة بتورينا الـ IDE (زي VS Code) وقايمة ملفات المشروع مفتوحة.)**
 
-**Host:** "Alright, here is our project. A well-organized codebase is just as beautiful as a well-designed UI. Inside our `lib` folder, you can see I’ve broken things down logically:"
+**المضيف:** "تمام، ده المشروع بتاعنا. الكود المنظم شياكة زي الديزاين بالظبط. جوه فولدر الـ `lib` عندنا، هتلاقوني مقسم الدنيا بشكل منطقي:"
 
-**(Visual: Zoom in on the specific folders as the host mentions them.)**
+**(مرئي: زووم على الفولدرات اللي المضيف بيشرحها.)**
 
-*   **Host:** "`screens/` holds our main views: the `splash_screen` and the `calculator_screen`."
-*   **Host:** "`utils/` is the brains of the operation. This is where `bmi_logic.dart` lives, keeping our heavy math completely separated from our UI. We also have `localization.dart` here for handling text."
-*   **Host:** "`widgets/` is our design system factory. `brutalist_widgets.dart` contains the custom containers and buttons we'll use everywhere."
-*   **Host:** "And finally, at the root, we have `main.dart`."
+*   **المضيف:** "`screens/` فيها الشاشات الأساسية: الـ `splash_screen` والـ `calculator_screen`."
+*   **المضيف:** "`utils/` ودي بقى 'دماغ' الليلة كلها. هنا ملف الـ `bmi_logic.dart` اللي فيه كل الحسابات التقيلة بعيد عن الـ UI. وعندنا كمان `localization.dart` عشان نتحكم في الكلام والنصوص."
+*   **المضيف:** "`widgets/` وده مصنع الديزاين بتاعنا. ملف `brutalist_widgets.dart` فيه الكانتينرز (Containers) والأزرار اللي هنستخدمها في كل حتة."
+*   **المضيف:** "وفي الآخر خالص، في الروت (Root)، عندنا ملف الـ `main.dart`."
 
-**(Visual: Host on camera.)**
+**(مرئي: المضيف قدام الكاميرا.)**
 
-**Host:** "By keeping our logic (`utils`), our reusable building blocks (`widgets`), and our layouts (`screens`) separate, this app is incredibly easy to maintain and scale. But to make all these pieces look cohesive, we need to set the global stage. And that happens in `main.dart`."
+**المضيف:** "لما بنفصل بين المنطق بتاعنا (`utils`) وعناصر البناء اللي بنعيد استخدامها (`widgets`) والشاشات (`screens`) ، التطبيق بيبقى سهل جداً في الصيانة والتطوير. بس عشان نخلي كل القطع دي متناسقة، لازم نظبط الليلة كلها من فوق.. وده اللي بيحصل في `main.dart`."
 
-### **[3:30 - 8:30] Deep Dive: `main.dart` & The Global Theme**
+### **[3:30 - 8:30] غطس جوه الكود: `main.dart` والسمة العامة (Global Theme)**
 
-**(Visual: Screen switches to show the full code of `lib/main.dart`.)**
+**(مرئي: الشاشة بتتحول عشان تورينا الكود كامل في `lib/main.dart`.)**
 
-**Host:** "Let's open up `main.dart`. This file is the entry point of our entire application. Let's look at the `main()` function."
+**المضيف:** "تعالوا نفتح `main.dart`. الملف ده هو باب الدخول للتطبيق كله. خلينا نبص على دالة الـ `main()`."
 
-**(Visual: Highlight lines 22-24: `void main() { runApp(const BrutalBMICalculator()); }`)**
+**(مرئي: تمييز السطور 22-24: `void main() { runApp(const BrutalBMICalculator()); }`)**
 
-**Host:** "Standard Flutter stuff here. We initialize the engine and run our root widget, `BrutalBMICalculator`. But inside this stateless widget is where the magic happens."
+**المضيف:** "كود فلاتر العادي خالص. بنشغل المحرك وننادي على الـ Root Widget بتاعنا، `BrutalBMICalculator`. بس جوه الـ Stateless Widget ده، هو ده مكان السحر."
 
-**(Visual: Highlight the `build` method and the `MaterialApp` return.)**
+**(مرئي: تمييز دالة الـ `build` والـ `MaterialApp` اللي راجعة.)**
 
-**Host:** "We return a `MaterialApp`. Notice we aren't just letting Flutter use its default styles. Neo-Brutalism requires a specific vibe. So, we heavily customize the `ThemeData`."
+**المضيف:** "إحنا بنرجع `MaterialApp`. خد بالك إننا مش سايبين فلاتر يستخدم الستايل الافتراضي بتاعه. الـ Neo-Brutalism محتاج روح معينة، عشان كده بنغير في الـ `ThemeData` بشكل كبير."
 
-**(Visual: Highlight `useMaterial3: true` and `scaffoldBackgroundColor: const Color(0xFFF0F0F0)`)**
+**(مرئي: تمييز `useMaterial3: true` والـ `scaffoldBackgroundColor: const Color(0xFFF0F0F0)`)**
 
-**Host:** "First, we enable Material 3. Then, we set the `scaffoldBackgroundColor`. Instead of pure white, we use `0xFFF0F0F0`, which is a slightly off-white, light gray. Why? Because in Brutalism, we use pure white *inside* our content boxes, and we want them to pop against the background. It emphasizes the structural containers."
+**المضيف:** "أول حاجة، بنفعل الـ Material 3. بعدين بنحدد لون خلفية الـ Scaffold. وبدل ما نستخدم الأبيض الصريح، بنستخدم `0xFFF0F0F0` وده رمادي فاتح أوي مائل للأبيض. ليه؟ عشان في الـ Brutalism بنستخدم الأبيض الصريح *جوه* صناديق المحتوى، وعايزينها 'تنطق' وتظهر بوضوح قدام الخلفية."
 
-**(Visual: Highlight the typography section: `textTheme: GoogleFonts.lexendTextTheme()`)**
+**(مرئي: تمييز جزء الخطوط: `textTheme: GoogleFonts.lexendTextTheme()`)**
 
-**Host:** "Next up: Typography. Brutalism is nothing without bold, readable, geometric fonts. We are importing the `google_fonts` package and applying `Lexend` globally. By doing it here in `main.dart`, every text widget in our app inherits this geometric character automatically. No need to style text individually everywhere."
+**المضيف:** "اللي بعده: الخطوط. الـ Brutalism ميسواش حاجة من غير خطوط هندسية جرئية وواضحة. إحنا بنستخدم باكيدج الـ `google_fonts` وبنطبق خط `Lexend` على التطبيق كله. وبما إننا عملنا كده في الـ `main.dart` ، فكل نص في التطبيق هياخد الشخصية دي أوتوماتيك.. مش محتاج تظبط الخط في كل شاشة لوحدها."
 
-**(Visual: Highlight the `colorScheme` section.)**
+**(مرئي: تمييز جزء الـ `colorScheme`.)**
 
-**Host:** "Now, the colors. We define our `ColorScheme` from a seed color. Our primary color is this vibrant, high-contrast Yellow (`0xFFFFDE59`), and we pair it with a stark Cyan (`0xFF5CE1E6`) as a secondary accent. When these colors are outlined with thick black borders later on, they scream 'Neo-Brutalism'."
+**المضيف:** "نيجي بقى للألوان. بنعرف الـ `ColorScheme` بتاعنا من لون أساسي. لوننا الأساسي هو الأصفر الفاقع ده (`0xFFFFDE59`) ، وبنحط معاه لون سيان (Cyan) حاد (`0xFF5CE1E6`) كألوان ثانوية. لما الألوان دي يتحط حواليها البرواز الأسود التخين اللي هنعمله، هتعرفوا فعلاً يعني إيه 'Neo-Brutalism'."
 
-**(Visual: Highlight `home: const SplashScreen()`)**
+**(مرئي: تمييز `home: const SplashScreen()`)**
 
-**Host:** "Finally, we set the `home` property to our `SplashScreen`. When the app launches, it immediately routes the user to our animated intro before they hit the calculator."
+**المضيف:** "وفي الآخر، بنخلي الـ `home` هو الـ `SplashScreen`. أول ما التطبيق يفتح، بيدخل المستخدم على المقدمة المتحركة بتاعتنا قبل ما يوصلوا للحاسبة."
 
-### **[8:30 - 10:00] Outro & What's Next**
+### **[8:30 - 10:00] الخلاصة واللي جاي**
 
-**(Visual: Host on camera.)**
+**(مرئي: المضيف قدام الكاميرا.)**
 
-**Host:** "And just like that, our foundation is set. We have a cleanly structured project, and we've successfully injected our core design tokens—the Lexend font, the off-white scaffold, and our stark yellow and cyan palette—globally into the app."
+**المضيف:** "وبس كده، حطينا الأساس بتاعنا. عندنا مشروع مترتب صح، وحطينا لمسات الديزاين الأساسية — خط Lexend، وخلفية الـ Scaffold، وباليتة الألوان القوية — في التطبيق كله."
 
-**(Visual: Quick teaser montage of the `brutalist_widgets.dart` code and the UI elements with hard shadows.)**
+**(مرئي: لقطات تشويقية سريعة لكود الـ `brutalist_widgets.dart` وعناصر واجهة المستخدم والضل القوي.)**
 
-**Host:** "But colors and fonts aren't enough to make it Brutalist. We need those thick borders and harsh shadows. In Episode 2, we are going to dive into the `widgets` folder and build our `BrutalistContainer` and `BrutalistButton` from scratch. We’ll learn how to manipulate the Flutter `Stack` widget to create that artificial 3D depth effect."
+**المضيف:** "بس الألوان والخطوط مش كفاية عشان يتقال عليه Brutalist. إحنا محتاجين البرواز التخين والضل القوي. في الحلقة التانية، هنروح لفولدر الـ `widgets` ونبني الـ `BrutalistContainer` والـ `BrutalistButton` من الصفر. هنتعلم إزاي نلعب بالـ `Stack` في فلاتر عشان نعمل تأثير العمق الـ 3D الصناعي ده."
 
-**(Visual: End screen with 'Subscribe', 'Next Episode' thumbnail, and social links.)**
+**(مرئي: شاشة النهاية فيها 'Subscribe'، وصورة الحلقة الجاية، ولينكات السوشيال ميديا.)**
 
-**Host:** "You won't want to miss it. Make sure you subscribe so you get notified when Episode 2 drops. Let me know in the comments what your favorite design trend is right now. Thanks for watching, and I'll see you in the next one!"
+**المضيف:** "مش عايزين تفوتوا ده. اتأكدوا إنكم مشتركين عشان يجيلكم تنبيه لما الحلقة التانية تنزل. وقولولي في الكومنتات إيه أكتر تريند ديزاين عاجبكم دلوقتي. شكراً للمتابعة، وأشوفكم الحلقة الجاية!"
+
+---
+
+## **نص الحلقة 2: إزاي تعمل ويدجتس (Widgets) بستايل الـ Brutalist**
+
+**فكرة العنوان:** أزرار وكانتينرز بـ "عضلات": بناء الـ UI الـ Brutalist في فلاتر (حلقة 2)
+**الوقت المقدر:** 10 دقايق
+
+### **[0:00 - 1:30] مقدمة الحلقة**
+
+**المضيف:** "يا أهلاً بيكم في الحلقة التانية! المرة اللي فاتت ظبطنا الأساس والـ Theme، النهاردة بقى هنبدأ 'نشغل إيدينا' ونبني العناصر اللي بتدي التطبيق ده شخصيته.. الـ Brutalist Widgets."
+
+**المضيف:** "إحنا مش هنستخدم ويدجتس فلاتر الجاهزة زي ما هي. إحنا هنبني الـ Containers والأزرار بتاعتنا بنفسنا عشان نضمن إن ليها البرواز التخين والضل الصلب اللي بيميز الستايل ده."
+
+### **[1:30 - 5:00] الـ BrutalistContainer واللعب بالـ Stack**
+
+**(مرئي: كود ملف `lib/widgets/brutalist_widgets.dart`.)**
+
+**المضيف:** "تعالوا نبص على ملف `brutalist_widgets.dart`. أهم حاجة هنا هي الـ `BrutalistContainer`. لو تلاحظوا، إحنا مش بنستخدم مجرد `BoxShadow`. لا، إحنا بنستخدم `Stack`."
+
+**المضيف:** "ليه الـ `Stack`؟ عشان نحط بوكس أسود تحت، وفوقيه بوكس اللون بتاعنا، ونرحله شوية (Offset). الحركة دي بتدي شكل الـ 3D اللي 'ناشف' وصريح، وده لب الـ Neo-Brutalism."
+
+### **[5:00 - 8:30] الأزرار وتغيير الألوان (Color Inversion)**
+
+**المضيف:** "نيجي بقى للأزرار. لما المستخدم يدوس على الزرار، عايزين يحس بـ 'رد فعل'. عشان كده بنعمل انيميشن بسيط بيحرك البوكس اللي فوق عشان يغطي الضل اللي تحت."
+
+**المضيف:** "وكمان بنلعب بلعبة ذكية في الألوان. لو الخلفية فاتحة، الكلام يبقى أسود، ولو الخلفية غامقة، الكلام يقلب أبيض أوتوماتيك. ده بيضمن إن التطبيق دايماً مريح للعين وشكله احترافي."
+
+### **[8:30 - 10:00] الخلاصة**
+
+**المضيف:** "بقى عندنا دلوقتي أدوات نقدر نبني بيها أي شاشة في التطبيق. في الحلقة الجاية، هنسيب الديزاين شوية ونروح لـ 'غرفة المحركات' عشان نشوف الحسابات الطبية اللي ورا التطبيق ده. اشتركوا عشان ما تفوتوش الحلقة الجاية!"
+
+---
+
+## **نص الحلقة 3: "غرفة المحركات" - المعادلات الطبية والمنطق**
+
+**فكرة العنوان:** مش مجرد ديزاين.. دي حسابات دقيقة: كود الـ BMI والـ Health Logic (حلقة 3)
+**الوقت المقدر:** 10 دقايق
+
+### **[0:00 - 2:00] ليه بنفصل المنطق عن الـ UI؟**
+
+**المضيف:** "النهاردة حلقة الدحيحة! هنتكلم عن الكود اللي بيحسب النتايج. بس قبل ما نكتب سطر واحد، لازم نتفق على مبدأ مهم: 'الـ UI ملوش دعوة بالحسابات'."
+
+**المضيف:** "إحنا بنحط كل المعادلات في ملفات منفصلة في فولدر الـ `utils` عشان الكود بتاعنا يبقى نضيف وسهل نعدل فيه بعدين من غير ما نبوظ شكل الشاشات."
+
+### **[2:00 - 7:00] معادلات الـ BMI والدهون**
+
+**(مرئي: ملف `lib/utils/bmi_logic.dart`.)**
+
+**المضيف:** "في ملف `bmi_logic.dart` ، إحنا مش بس بنحسب الـ BMI العادي (الوزن على مربع الطول). لا، إحنا مدلعين المستخدم."
+
+**المضيف:** "بنستخدم معادلات زي Deurenberg عشان نحسب نسبة الدهون في الجسم، وبنحسب كمان 'الوزن المثالي' بناءً على الطول. كل ده محطوط في `static functions` عشان ننادي عليها بسهولة من أي حتة."
+
+### **[7:00 - 9:00] تحويل الأرقام لألوان ونصوص**
+
+**المضيف:** "الأرقام لوحدها مملة. عشان كده عملنا ويدجت بترجع `BMIResult`.. ده كائن (Object) فيه الرقم، والوصف (زي 'وزن مثالي' أو 'زيادة وزن') ، وكمان اللون المناسب للحالة دي."
+
+### **[9:00 - 10:00] الخلاصة**
+
+**المضيف:** "دلوقتي 'العقل' بتاع التطبيق جاهز. الحلقة الجاية هنربط العقل ده بالويدجتس اللي عملناها عشان المستخدم يبدأ يدخل بياناته ونطلعله النتايج. استنونا!"
+
+---
+
+## **نص الحلقة 4: "المسرح الأساسي" - مدخلات المستخدم والـ State**
+
+**فكرة العنوان:** إزاي تخلي التطبيق يتفاعل معاك: السلايدرز، الفورمز، والـ State (حلقة 4)
+**الوقت المقدر:** 10 دقايق
+
+### **[0:00 - 3:00] شاشة الحاسبة والـ StatefulWidget**
+
+**المضيف:** "وصلنا للمحطة القبل أخيرة! النهاردة هنبني الشاشة اللي المستخدم هيقضي فيها معظم وقته.. الـ `CalculatorScreen`."
+
+**المضيف:** "بما إن الأرقام بتتغير طول ما المستخدم بيحرك السلايدرز، فإحنا محتاجين `StatefulWidget`. هنعرف المتغيرات بتاعتنا زي الطول، الوزن، والسن، ونبدأ نربطهم بالـ UI."
+
+### **[3:00 - 7:00] السلايدرز والـ Custom Inputs**
+
+**(مرئي: كود الـ Sliders والـ Gender Selection.)**
+
+**المضيف:** "شوفوا الجمال! استخدمنا الـ `BrutalistContainer` اللي عملناه عشان نغلف بيه السلايدرز. وبنستخدم `setState` عشان نحدث القيم أول بأول."
+
+**المضيف:** "وعندنا كمان اختيار النوع (ذكر/أنثى) معمول بكروت شكلها شيك جداً وبتتفاعل مع الضغط بـ 'إحساس' Brutalist صريح."
+
+### **[7:00 - 9:00] الـ Localization (التطبيق بيتكلم عربي!)**
+
+**المضيف:** "وعشان إحنا عايزين التطبيق يوصل لكل الناس، ظبطنا ملف الـ `localization.dart`. التطبيق هيقلب لغته واتجاهه (RTL) أوتوماتيك بناءً على لغة الموبايل.. شغل محترفين!"
+
+### **[9:00 - 10:00] الخلاصة**
+
+**المضيف:** "التطبيق بقى شغال وبياخد بيانات. الحلقة الجاية هي 'الفنش'.. هنعرض النتايج بشكل يبهر المستخدم ونظبط شاشة البداية. اشتركوا وفعلوا الجرس!"
+
+---
+
+## **نص الحلقة 5: الأنيميشن، النتايج، واللمسات الأخيرة**
+
+**فكرة العنوان:** اللحظة الحاسمة: إظهار النتايج، الأنيميشن، وفنش التطبيق (حلقة 5)
+**الوقت المقدر:** 10 دقايق
+
+### **[0:00 - 3:00] عرض النتايج بـ "شياكة"**
+
+**المضيف:** "وصلنا للحلقة الأخيرة من السلسلة! النهاردة هنقفل اللوحة الفنية دي. أول حاجة هنعملها هي الـ Results Overlay."
+
+**المضيف:** "لما المستخدم يدوس 'احسب'، هتظهرله لوحة فيها كل تفاصيله: الـ BMI، نسبة الدهون، ونصيحة صحية.. وكل ده متغلف في ديزاين أصفر فاقع وبرواز أسود يخطف العين."
+
+### **[3:00 - 6:00] الـ Splash Screen والانيميشن**
+
+**(مرئي: شاشة الـ Splash وهي بتتحرك.)**
+
+**المضيف:** "أول انطباع هو الأهم. عشان كده عملنا `SplashScreen` فيها اللوجو بتاعنا وبيتحرك بشكل بسيط بس ملفت. استخدمنا `Future.delayed` عشان ننقل المستخدم للشاشة الرئيسية بعد كام ثانية."
+
+### **[6:00 - 9:00] مراجعة المشروع وتفنيش الكود**
+
+**المضيف:** "تعالوا نبص بصه أخيرة على الكود كله. المشروع بقى منظم، سريع، وشكله ملوش زي. اتعلمنا إزاي نستخدم فلاتر عشان نخرج برا الصندوق ونعمل ديزاين مختلف وله شخصية."
+
+### **[9:00 - 10:00] الخاتمة وشكر المتابعين**
+
+**المضيف:** "وبكده نكون خلصنا سلسلة الـ Brutalist BMI Calculator. أتمنى تكونوا استفدتوا واستمتعتوا بالرحلة دي زي ما أنا استمتعت بيها."
+
+**المضيف:** "لو عجبكم النوع ده من الفيديوهات، متنسوش اللايك والشير، وقولولي في الكومنتات تحبوا نعمل تطبيقات إيه تاني بالستايل ده. شكراً ليكم، وأشوفكم في مشاريع تانية كتير.. سلام!"
