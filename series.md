@@ -1001,3 +1001,186 @@ build() runs again → new values shown instantly
 
 ✨ Understanding this screen means you understand the **full Flutter data flow**: input → state → calculation → UI rebuild. That's the foundation of every real-world Flutter app.
 
+---
+
+## 🚀 `splash_screen.dart` Explained for Flutter Beginners
+
+Hello everyone 👋  
+This file is the app's **first impression**. It shows a short animated intro, then moves the user to `CalculatorScreen` automatically.
+
+> ✅ Core idea:  
+> `SplashScreen` uses a timed delay + animated widgets to create a smooth branded entry experience.
+
+---
+
+### 🧭 What this screen is responsible for
+
+`SplashScreen` does three jobs:
+
+- 🎬 Show a branded animated intro (logo, title, tagline)
+- ⏱️ Wait a short time so users can actually see the animation
+- 🔁 Navigate to `CalculatorScreen` and remove splash from back stack
+
+---
+
+### 🧱 1) Why it is a `StatefulWidget`
+
+```dart
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+```
+
+It is stateful because startup logic happens in `initState()` (timed navigation).  
+A `StatelessWidget` has no lifecycle hook for this type of one-time startup action.
+
+---
+
+### ⏱️ 2) `initState()` and delayed navigation
+
+```dart
+@override
+void initState() {
+  super.initState();
+
+  Future.delayed(const Duration(seconds: 3), () {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const CalculatorScreen()),
+      );
+    }
+  });
+}
+```
+
+What happens step by step:
+
+1. Screen is created
+2. A 3-second timer starts
+3. After timer, it checks `mounted`
+4. If still mounted, it navigates to `CalculatorScreen`
+5. `pushReplacement` removes splash so back button won't return to it
+
+> 💡 Beginner tip: `mounted` protects you from using `context` after the widget is disposed.
+
+---
+
+### 🛡️ 3) Why `mounted` is important
+
+Without this check, if the widget is removed before the delay ends, navigation may throw errors.
+
+```dart
+if (mounted) {
+  Navigator.of(context).pushReplacement(...);
+}
+```
+
+So `mounted` = safety guard for async callbacks.
+
+---
+
+### 🎨 4) UI structure in `build()`
+
+```dart
+Scaffold(
+  backgroundColor: const Color(0xFFFFDE59),
+  body: Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // logo box
+        // title text
+        // tagline
+      ],
+    ),
+  ),
+)
+```
+
+Layout is intentionally simple and centered:
+
+- Yellow background for strong brand identity 🟨
+- Vertical stack (`Column`) for clean visual hierarchy
+- Large title and high contrast for quick recognition
+
+---
+
+### ✨ 5) `flutter_animate` chains (how animation is added)
+
+The magic is this pattern:
+
+```dart
+someWidget
+  .animate()
+  .fadeIn()
+  .slideY();
+```
+
+In your file, each element has its own effect:
+
+- **Logo container**
+  - `.scale(duration: 600.ms, curve: Curves.elasticOut)`
+  - `.shimmer(delay: 800.ms, duration: 1200.ms)`
+- **Title**
+  - `.fadeIn(delay: 400.ms)`
+  - `.slideY(begin: 0.2, end: 0)`
+- **Tagline**
+  - `.fadeIn(delay: 800.ms)`
+  - `.scaleX(begin: 0)`
+
+This creates a staged entry sequence instead of everything appearing at once.
+
+---
+
+### 🔄 6) Why `pushReplacement` is better than `push` here
+
+```dart
+Navigator.of(context).pushReplacement(
+  MaterialPageRoute(builder: (context) => const CalculatorScreen()),
+);
+```
+
+If you used `push`, users could press back and return to splash (bad UX).  
+`pushReplacement` keeps navigation clean:
+
+- Splash appears only on startup ✅
+- Back button returns logically, not to intro screen ✅
+
+---
+
+### 🧪 7) Timing and UX balance
+
+Your current delay is `3` seconds. That's usually okay for a branded splash.
+
+Good rule of thumb:
+
+- `< 1s` → may feel too fast, animation not noticed
+- `2–3s` → balanced for branding and smooth transition
+- `> 4s` → can feel slow unless loading real data
+
+---
+
+### 🚫 Common beginner mistakes to avoid
+
+- Calling `Navigator` directly in `build()`
+- Forgetting `mounted` in delayed/async callbacks
+- Using `push` instead of `pushReplacement` for splash
+- Overloading splash with too many heavy widgets/animations
+- Making splash long without real purpose (hurts UX)
+
+---
+
+## ✅ Final takeaway
+
+`SplashScreen` is a small file, but it teaches big Flutter concepts:
+
+- lifecycle (`initState`) 🧠
+- async timing (`Future.delayed`) ⏱️
+- safe navigation (`mounted`) 🛡️
+- clean route replacement (`pushReplacement`) 🔁
+- expressive UI animation chaining (`flutter_animate`) ✨
+
+Once you understand this screen, you can build polished app startups that feel professional from the first frame.
