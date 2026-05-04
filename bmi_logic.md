@@ -224,22 +224,18 @@ if (bmi < 30) → ✅ **ينطبق!**
 كونة بسيط يربط بين مفتاح الترجمة واللون المرتبط بكل حالة صحية.
 
 **الكود:**
-```dart
-/// كونة بيانات يربط بين مفتاح الترجمة واللون المرتبط بكل حالة صحية
+<pre dir="ltr"><code class="language-dart">/// كونة بيانات يربط بين مفتاح الترجمة واللون المرتبط بكل حالة صحية
 class BMIResult {
   final String key;   // مفتاح الترجمة (مثل 'cat_n'، 'cat_o')
   final Color color;  // اللون المرتبط بالحالة الصحية
   
   BMIResult(this.key, this.color);
-}
-```
+}</code></pre>
 
 **الاستخدام في الواجهة:**
-```dart
-// عند عرض النتائج على الشاشة:
+<pre dir="ltr"><code class="language-dart">// عند عرض النتائج على الشاشة:
 String categoryText = AppLocalization.getTranslation(bmiResult.key);
-Color statusColor = bmiResult.color;
-```
+Color statusColor = bmiResult.color;</code></pre>
 
 ---
 
@@ -298,35 +294,27 @@ Color statusColor = bmiResult.color;
 ## 💡 نصائح للمطورين الجدد
 
 ### 🔹 1️⃣ دائماً تحقق من صحة المدخلات
-```dart
-// ❌ خطأ: لا تتحقق من القيم
+<pre dir="ltr"><code class="language-dart">// ❌ خطأ: لا تتحقق من القيم
 if (heightCm < 100 || heightCm > 250) return "خطأ";
 
 // ✅ صحيح: استخدم القيم المنطقية
-if (heightCm <= 0 || weightKg <= 0) return 0;
-```
+if (heightCm <= 0 || weightKg <= 0) return 0;</code></pre>
 
 ### 🔹 2️⃣ التحويل الصحيح للوحدات
-```dart
-// 📏 الطول دائماً يُخزن بالسم ثم يُحول للمتر عند الحاجة
-double heightM = heightCm / 100;  // من سم إلى متر
-```
+<pre dir="ltr"><code class="language-dart">// 📏 الطول دائماً يُخزن بالسم ثم يُحول للمتر عند الحاجة
+double heightM = heightCm / 100;  // من سم إلى متر</code></pre>
 
 ### 🔹 3️⃣ استخدم الـ Map للإرجاع
-```dart
-// إرجاع البيانات في خريطة بدلاً من الدوال المتعددة
+<pre dir="ltr"><code class="language-dart">// إرجاع البيانات في خريطة بدلاً من الدوال المتعددة
 return {
   'min': minWeight,
   'max': maxWeight,
-};
-```
+};</code></pre>
 
 ### 🔹 4️⃣ استخدم مفاتيح الترجمة
-```dart
-// بدلاً من كتابة النصوص مباشرة
+<pre dir="ltr"><code class="language-dart">// بدلاً من كتابة النصوص مباشرة
 return BMIResult('cat_n', const Color(0xFF4CAF50));
-// سيتم جلب النص من ملف الترجمة تلقائياً
-```
+// سيتم جلب النص من ملف الترجمة تلقائياً</code></pre>
 
 ---
 
