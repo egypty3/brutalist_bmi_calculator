@@ -8,15 +8,44 @@
 
 ## 📋 نظرة عامة سريعة
 
-| العنصر            | الوصف                                                             |
-| ----------------- | ----------------------------------------------------------------- |
-| **اسم الشاشة**    | `CalculatorScreen`                                                |
-| **نوعها**         | `StatefulWidget`                                                  |
-| **الدور الأساسي** | جمع مدخلات المستخدم وعرض النتائج الصحية فورياً                    |
-| **الملف**         | `lib/screens/calculator_screen.dart`                              |
-| **يعتمد على**     | `bmi_logic.dart` + `localization.dart` + `brutalist_widgets.dart` |
-| **يدعم RTL/LTR**  | نعم، تلقائياً حسب اللغة                                           |
-| **التصميم**       | Neo-Brutalist: حدود سوداء سميكة، ألوان حادة، ظل صلب، تباين مرتفع  |
+<table dir="rtl" style="width:100%; border-collapse: collapse; text-align: right;">
+  <thead>
+    <tr>
+      <th style="border:1px solid #ccc; padding:8px; text-align:right;">العنصر</th>
+      <th style="border:1px solid #ccc; padding:8px; text-align:right;">الوصف</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>اسم الشاشة</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;"><code>CalculatorScreen</code></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>نوعها</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;"><code>StatefulWidget</code></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>الدور الأساسي</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;">جمع مدخلات المستخدم وعرض النتائج الصحية فورياً</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>الملف</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;"><code>lib/screens/calculator_screen.dart</code></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>يعتمد على</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;"><code>bmi_logic.dart</code> + <code>localization.dart</code> + <code>brutalist_widgets.dart</code></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>يدعم RTL/LTR</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;">نعم، تلقائياً حسب اللغة</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #ccc; padding:8px;"><strong>التصميم</strong></td>
+      <td style="border:1px solid #ccc; padding:8px;">Neo-Brutalist: حدود سوداء سميكة، ألوان حادة، ظل صلب، تباين مرتفع</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
