@@ -14,7 +14,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 /// Utility class providing core health calculation and classification logic.
 /// 

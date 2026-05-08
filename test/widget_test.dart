@@ -1,30 +1,62 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:brutalist_bmi_calculator/main.dart';
+import 'package:brutalist_bmi_calculator/screens/calculator_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('app starts on the splash screen', (WidgetTester tester) async {
     await tester.pumpWidget(const BrutalBMICalculator());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('BMI\nCALCULATOR'), findsOneWidget);
+    expect(find.text('STAY FIT OR DIE TRYING'), findsOneWidget);
+    expect(find.byType(CalculatorScreen), findsNothing);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('app navigates to calculator after splash delay', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const BrutalBMICalculator());
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalculatorScreen), findsOneWidget);
+    expect(find.text('BMI CALCULATOR'), findsOneWidget);
+    expect(find.text('NORMAL'), findsAtLeastNWidgets(1));
+    expect(find.text('24.2'), findsAtLeastNWidgets(1));
+    expect(find.text('CLASSIFICATION REFERENCE'), findsOneWidget);
+  });
+
+  testWidgets('calculator screen can change language and weight unit', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const BrutalBMICalculator());
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SELECT LANGUAGE'), findsAtLeastNWidgets(1));
+
+    await tester.tap(find.text('Français').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('CALCULATEUR IMC'), findsOneWidget);
+
+    await tester.tap(find.text('KG').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('UNITÉ DE POIDS'), findsAtLeastNWidgets(1));
+
+    await tester.tap(find.text('LB').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('LB'), findsWidgets);
   });
 }

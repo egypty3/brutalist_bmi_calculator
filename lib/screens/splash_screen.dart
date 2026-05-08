@@ -54,10 +54,10 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // --- LOGO ICON ---
             // Centered weight icon inside a Brutalist box with entry animations.
-            BrutalistContainer(
+            const BrutalistContainer(
               backgroundColor: Colors.white,
-              padding: const EdgeInsets.all(24),
-              child: const Icon(
+              padding: EdgeInsets.all(24),
+              child: Icon(
                 Icons.monitor_weight_outlined,
                 size: 80,
                 color: Colors.black,

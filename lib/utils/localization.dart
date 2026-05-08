@@ -13,7 +13,6 @@
 //   its layout for languages like Arabic.
 // ============================================================================
 
-import 'package:flutter/material.dart';
 
 /// A simple localization utility for the Brutalist BMI Calculator.
 /// 
