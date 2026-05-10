@@ -11,6 +11,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
 
@@ -19,7 +20,29 @@ import 'screens/splash_screen.dart';
 /// This file initializes the Flutter engine and sets up the root [BrutalBMICalculator] widget.
 /// The application uses a Neo-Brutalist design system characterized by bold typography,
 /// high-contrast colors, and hard shadows.
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock rotation on phones; keep full rotation support on tablets.
+  final view = WidgetsBinding.instance.platformDispatcher.views.first;
+  final logicalWidth = view.physicalSize.width / view.devicePixelRatio;
+  final logicalHeight = view.physicalSize.height / view.devicePixelRatio;
+  final isMobile = (logicalWidth < logicalHeight ? logicalWidth : logicalHeight) < 600;
+
+  await SystemChrome.setPreferredOrientations(
+    isMobile
+        ? [
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]
+        : [
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ],
+  );
+
   runApp(const BrutalBMICalculator());
 }
 

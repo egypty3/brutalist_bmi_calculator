@@ -1,13 +1,15 @@
 // ============================================================================
 // File: lib/screens/calculator_screen.dart
 // Description: The core interface and state manager of the BMI Calculator.
-// 
+//
 // Architecture & State Management:
 // - Stateful Widget managing user inputs (age, weight, height, gender).
 // - Dynamically detects system language on startup via PlatformDispatcher.
 // - Reactively updates BMI, Body Fat Percentage, and Ideal Weight upon any user input.
 // - Toggles seamlessly between Imperial (lb, ft/in) and Metric (kg, cm) systems.
-// 
+// - Auto-detects device type: tablet (≥600px) uses a scroll-free two-column layout;
+//   phone uses the standard single-column scrollable layout.
+//
 // UI Components:
 // - Utilizes custom `BrutalistContainer` widgets to maintain a cohesive design system.
 // - Wraps the entire layout in a `Directionality` widget to support Right-to-Left (RTL)
@@ -18,14 +20,11 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/brutalist_widgets.dart';
 import '../utils/bmi_logic.dart';
 import '../utils/localization.dart';
 
 /// The primary screen for the BMI Calculator.
-/// It manages the user interface and logic for inputting physical metrics
-/// and displaying real-time health data in a Neo-Brutalist style.
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
 
@@ -34,88 +33,50 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  // --- State Variables for User Inputs ---
-  
-  /// User's age in years.
   int age = 25;
-  
-  /// User's height in centimeters (internal storage is always metric).
   double height = 170.0;
-  
-  /// User's weight in kilograms (internal storage is always metric).
   double weight = 70.0;
-  
-  /// Boolean flag for gender selection: true for Male, false for Female.
   bool isMale = true;
-
-  // --- State Variables for Unit Systems ---
-  
-  /// Flag for height unit: true for Centimeters (CM), false for Feet + Inches (FT+IN).
   bool isCm = true;
-  
-  /// Flag for weight unit: true for Kilograms (KG), false for Pounds (LB).
   bool isKg = true;
 
-  // --- State Variables for Localization ---
-  
-  /// Current language code (en, ar, fr, de).
   late String _currentLang;
-  
-  /// Localization helper instance.
   late AppLocalization _loc;
 
-  // --- State Variables for Calculated Results ---
-  
-  /// Calculated Body Mass Index value.
   double bmi = 0;
-  
-  /// Translation key for the health category.
   String classificationKey = "cat_n";
-  
-  /// The color associated with the current health classification.
   Color classificationColor = Colors.black;
 
-  // --- Physical Conversion Constants ---
-  
-  /// Number of centimeters in one inch.
   static const double cmPerInch = 2.54;
-  
-  /// Number of kilograms in one pound.
   static const double kgPerLb = 0.45359237;
 
   @override
   void initState() {
     super.initState();
-    // Detect system language and set as default if supported
     String systemLang = PlatformDispatcher.instance.locale.languageCode;
     _currentLang = AppLocalization.languages.containsKey(systemLang) ? systemLang : 'en';
     _loc = AppLocalization(_currentLang);
-    
-    // Perform an initial calculation to populate results on startup.
     _calculate();
   }
 
-  /// Recalculates all health metrics based on the current state variables.
-  /// This is called every time a user interacts with any input control.
   void _calculate() {
     setState(() {
-      // BMI Logic: (Weight in KG) / (Height in Meters)^2
       bmi = BMICalculator.calculateBMI(height, weight);
-      
-      // Fetch classification key and theme color from the logic utility
       final result = BMICalculator.getClassification(bmi);
       classificationKey = result.key;
       classificationColor = result.color;
     });
   }
 
-  /// Switches the application language and updates the state.
   void _changeLanguage(String langCode) {
     setState(() {
       _currentLang = langCode;
       _loc = AppLocalization(langCode);
     });
   }
+
+  // ── Breakpoint ────────────────────────────────────────────────────────────
+  static const double _tabletBreakpoint = 600;
 
   @override
   Widget build(BuildContext context) {
@@ -130,286 +91,404 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24),
           ),
           actions: [
-            // Language selection menu triggered by 3 dots
             IconButton(
               icon: const Icon(Icons.more_vert, color: Colors.black),
               onPressed: () => _showLanguageDialog(),
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // --- GENDER SELECTION SECTION ---
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: _buildGenderCard(
-                        _loc.translate('male'),
-                        Icons.man,
-                        isMale,
-                        () => setState(() {
-                          isMale = true;
-                          _calculate();
-                        }),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20), // Matches spacing of Age/Weight row
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: _buildGenderCard(
-                        _loc.translate('female'),
-                        Icons.woman,
-                        !isMale,
-                        () => setState(() {
-                          isMale = false;
-                          _calculate();
-                        }),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // --- AGE & WEIGHT INPUT SECTION ---
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildCounterCard(
-                      _loc.translate('age'),
-                      age,
-                      (val) => setState(() {
-                        age = val;
-                        _calculate();
-                      }),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: _buildCounterCard(
-                      _loc.translate('weight'),
-                      isKg ? weight.toInt() : (weight / kgPerLb).round(),
-                      (val) => setState(() {
-                        weight = isKg ? val.toDouble() : val * kgPerLb;
-                        _calculate();
-                      }),
-                      unit: isKg ? 'KG' : 'LB',
-                      onUnitTap: () => _showUnitDialog(
-                        _loc.translate('weight_unit'),
-                        ['KG', 'LB'],
-                        isKg ? 'KG' : 'LB',
-                        (val) => setState(() {
-                          isKg = val == 'KG';
-                          _calculate();
-                        }),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // --- HEIGHT ADJUSTMENT SECTION ---
-              BrutalistContainer(
-                backgroundColor: Colors.white,
-                child: Column(
-                  children: [
-                    Text(
-                      _loc.translate('height'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        if (isCm)
-                          Text(
-                            height.toStringAsFixed(0),
-                            style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900),
-                          )
-                        else
-                          Text(
-                            _formatHeightInFeet(height),
-                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
-                          ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () => _showUnitDialog(
-                            _loc.translate('height_unit'),
-                            ['CM', 'FT + IN'],
-                            isCm ? 'CM' : 'FT + IN',
-                            (val) => setState(() {
-                              isCm = val == 'CM';
-                              _calculate();
-                            }),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              isCm ? 'CM' : 'FT+IN',
-                              style: const TextStyle(
-                                color: Colors.white, 
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Slider(
-                      value: height,
-                      min: 100,
-                      max: 220,
-                      activeColor: Colors.black,
-                      inactiveColor: Colors.black12,
-                      onChanged: (val) {
-                        setState(() {
-                          height = val;
-                          _calculate();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // --- CORE RESULTS DASHBOARD ---
-              BrutalistContainer(
-                padding: EdgeInsets.zero,
-                backgroundColor: Colors.white,
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_loc.translate('ideal'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(
-                                isKg 
-                                  ? '${BMICalculator.getIdealWeightRange(height)['min']!.toStringAsFixed(1)}kg'
-                                  : '${(BMICalculator.getIdealWeightRange(height)['min']! / kgPerLb).toStringAsFixed(1)}lb',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(width: 2, color: Colors.black),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          color: const Color(0xFF5CE1E6),
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'BMI',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Text(
-                                bmi.toStringAsFixed(1),
-                                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  _loc.translate(classificationKey).toUpperCase(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: classificationColor,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(width: 2, color: Colors.black),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_loc.translate('fat'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${BMICalculator.estimateFatPercentage(bmi, age, isMale).toStringAsFixed(1)}%',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // --- CLASSIFICATION REFERENCE TABLE ---
-              Text(
-                _loc.translate('reference'),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-              ),
-              const SizedBox(height: 12),
-              BrutalistContainer(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    _buildClassificationRow(_loc.translate('cat_vsu'), '< 16', const Color(0xFFFF5252)),
-                    _buildClassificationRow(_loc.translate('cat_su'), '16 - 17', const Color(0xFFFF7043)),
-                    _buildClassificationRow(_loc.translate('cat_u'), '17 - 18.5', const Color(0xFFE65100)),
-                    _buildClassificationRow(_loc.translate('cat_n'), '18.5 - 25', const Color(0xFF4CAF50)),
-                    _buildClassificationRow(_loc.translate('cat_o'), '25 - 30', const Color(0xFFF57F17)),
-                    _buildClassificationRow(_loc.translate('cat_o1'), '30 - 35', const Color(0xFFFF8A65)),
-                    _buildClassificationRow(_loc.translate('cat_o2'), '35 - 40', const Color(0xFFF4511E)),
-                    _buildClassificationRow(_loc.translate('cat_o3'), '> 40', const Color(0xFFD32F2F), isLast: true),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= _tabletBreakpoint) {
+              return _buildTabletLayout();
+            }
+            return _buildPhoneLayout();
+          },
         ),
       ),
     );
   }
 
-  /// Helper: Builds a single row in the classification guide table.
-  Widget _buildClassificationRow(String label, String range, Color color, {bool isLast = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  // ── PHONE LAYOUT (scrollable single-column) ───────────────────────────────
+  Widget _buildPhoneLayout() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _genderRow(),
+          const SizedBox(height: 24),
+          _ageWeightRow(),
+          const SizedBox(height: 24),
+          _heightCard(),
+          const SizedBox(height: 32),
+          _resultsCard(),
+          const SizedBox(height: 32),
+          _classificationSection(),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  // ── TABLET LAYOUT (two-column, no scroll) ─────────────────────────────────
+  Widget _buildTabletLayout() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // LEFT COLUMN — inputs
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Gender row — fixed height
+                _genderRow(iconSize: 52, fontSize: 16),
+                const SizedBox(height: 16),
+                // Age + Weight — fixed height
+                _ageWeightRow(),
+                const SizedBox(height: 16),
+                // Height — takes remaining space on left
+                Expanded(child: _heightCard(expandSlider: true)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          // RIGHT COLUMN — results + reference table
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Results dashboard — fixed height
+                _resultsCard(tabletMode: true),
+                const SizedBox(height: 16),
+                // Classification table — fills remaining space
+                Expanded(child: _classificationSection(scrollable: false)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  SHARED SECTION BUILDERS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _genderRow({double iconSize = 40, double fontSize = 14}) {
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildGenderCard(
+              _loc.translate('male'),
+              Icons.man,
+              isMale,
+                  () => setState(() { isMale = true; _calculate(); }),
+              iconSize: iconSize,
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildGenderCard(
+              _loc.translate('female'),
+              Icons.woman,
+              !isMale,
+                  () => setState(() { isMale = false; _calculate(); }),
+              iconSize: iconSize,
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _ageWeightRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildCounterCard(
+            _loc.translate('age'),
+            age,
+                (val) => setState(() { age = val; _calculate(); }),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: _buildCounterCard(
+            _loc.translate('weight'),
+            isKg ? weight.toInt() : (weight / kgPerLb).round(),
+                (val) => setState(() {
+              weight = isKg ? val.toDouble() : val * kgPerLb;
+              _calculate();
+            }),
+            unit: isKg ? 'KG' : 'LB',
+            onUnitTap: () => _showUnitDialog(
+              _loc.translate('weight_unit'),
+              ['KG', 'LB'],
+              isKg ? 'KG' : 'LB',
+                  (val) => setState(() { isKg = val == 'KG'; _calculate(); }),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// [expandSlider] adds a Spacer so the slider fills vertical space on tablet.
+  Widget _heightCard({bool expandSlider = false}) {
+    return BrutalistContainer(
+      backgroundColor: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (expandSlider) const Spacer(),
+          Text(
+            _loc.translate('height'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              if (isCm)
+                Text(
+                  height.toStringAsFixed(0),
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900),
+                )
+              else
+                Text(
+                  _formatHeightInFeet(height),
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
+                ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _showUnitDialog(
+                  _loc.translate('height_unit'),
+                  ['CM', 'FT + IN'],
+                  isCm ? 'CM' : 'FT + IN',
+                      (val) => setState(() { isCm = val == 'CM'; _calculate(); }),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    isCm ? 'CM' : 'FT+IN',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (expandSlider) const Spacer(),
+          Slider(
+            value: height,
+            min: 100,
+            max: 220,
+            activeColor: Colors.black,
+            inactiveColor: Colors.black12,
+            onChanged: (val) => setState(() { height = val; _calculate(); }),
+          ),
+          if (expandSlider) const Spacer(),
+        ],
+      ),
+    );
+  }
+
+  /// [tabletMode] makes the BMI number larger on tablet.
+  Widget _resultsCard({bool tabletMode = false}) {
+    return BrutalistContainer(
+      padding: EdgeInsets.zero,
+      backgroundColor: Colors.white,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _loc.translate('ideal'),
+                      style: TextStyle(
+                        fontSize: tabletMode ? 14 : 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        isKg
+                            ? '${BMICalculator.getIdealWeightRange(height)['min']!.toStringAsFixed(1)}kg'
+                            : '${(BMICalculator.getIdealWeightRange(height)['min']! / kgPerLb).toStringAsFixed(1)}lb',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(
+                          fontSize: tabletMode ? 22 : 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(width: 2, color: Colors.black),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: const Color(0xFF5CE1E6),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('BMI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      bmi.toStringAsFixed(1),
+                      style: TextStyle(
+                        fontSize: tabletMode ? 64 : 48,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        _loc.translate(classificationKey).toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: classificationColor,
+                          fontWeight: FontWeight.w900,
+                          fontSize: tabletMode ? 13 : 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(width: 2, color: Colors.black),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _loc.translate('fat'),
+                      style: TextStyle(
+                        fontSize: tabletMode ? 14 : 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${BMICalculator.estimateFatPercentage(bmi, age, isMale).toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: tabletMode ? 22 : 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// [scrollable] = false wraps in Expanded-friendly Column (tablet right panel).
+  Widget _classificationSection({bool scrollable = true}) {
+    final expandRows = !scrollable;
+    final table = BrutalistContainer(
+      backgroundColor: Colors.white,
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          _buildClassificationRow(_loc.translate('cat_vsu'), '< 16',      const Color(0xFFFF5252), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_su'),  '16 - 17',   const Color(0xFFFF7043), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_u'),   '17 - 18.5', const Color(0xFFE65100), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_n'),   '18.5 - 25', const Color(0xFF4CAF50), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_o'),   '25 - 30',   const Color(0xFFF57F17), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_o1'),  '30 - 35',   const Color(0xFFFF8A65), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_o2'),  '35 - 40',   const Color(0xFFF4511E), expand: expandRows),
+          _buildClassificationRow(_loc.translate('cat_o3'),  '> 40',      const Color(0xFFD32F2F), isLast: true, expand: expandRows),
+        ],
+      ),
+    );
+
+    if (!scrollable) {
+      // On tablet: fill remaining height without scrolling
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            _loc.translate('reference'),
+            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+          Expanded(child: table),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          _loc.translate('reference'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+        const SizedBox(height: 12),
+        table,
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  HELPER WIDGETS (unchanged)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildClassificationRow(
+    String label,
+    String range,
+    Color color, {
+    bool isLast = false,
+    bool expand = false,
+  }) {
+    final row = Container(
+      height: expand ? null : 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       decoration: BoxDecoration(
         border: isLast ? null : const Border(bottom: BorderSide(color: Colors.black, width: 1)),
       ),
@@ -422,67 +501,76 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 14),
             ),
           ),
-          Text(
-            range,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
-          ),
+          Text(range, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
         ],
       ),
     );
+
+    if (expand) {
+      return Expanded(child: row);
+    }
+
+    return row;
   }
 
-  /// Helper: Builds a selectable Gender card (Male/Female).
-  Widget _buildGenderCard(String label, IconData icon, bool selected, VoidCallback onTap) {
+  Widget _buildGenderCard(
+      String label,
+      IconData icon,
+      bool selected,
+      VoidCallback onTap, {
+        double iconSize = 40,
+        double fontSize = 14,
+      }) {
     return BrutalistContainer(
       onTap: onTap,
       backgroundColor: selected ? const Color(0xFFFFDE59) : Colors.white,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: Colors.black),
+          Icon(icon, size: iconSize, color: Colors.black),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-          ),
+          Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: fontSize)),
         ],
       ),
     );
   }
 
-  /// Helper: Builds a counter card with +/- controls for Age and Weight.
-  Widget _buildCounterCard(String label, int value, Function(int) onChanged, {String unit = "", VoidCallback? onUnitTap}) {
+  Widget _buildCounterCard(
+      String label,
+      int value,
+      Function(int) onChanged, {
+        String unit = "",
+        VoidCallback? onUnitTap,
+      }) {
     return BrutalistContainer(
       backgroundColor: Colors.white,
       child: Column(
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '$value',
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(width: 4),
-              // If onUnitTap is provided, the unit label acts as a button
-              if (onUnitTap != null)
-                GestureDetector(
-                  onTap: onUnitTap,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
-                    child: Text(
-                      unit, 
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text('$value', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
+                const SizedBox(width: 4),
+                if (onUnitTap != null)
+                  GestureDetector(
+                    onTap: onUnitTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
+                      child: Text(unit, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
-                  ),
-                )
-              else
-                Text(unit, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            ],
+                  )
+                else
+                  Text(unit, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Row(
@@ -498,7 +586,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  /// Utility: Converts internal height (cm) to a readable "Feet' Inches\"" string.
   String _formatHeightInFeet(double cm) {
     double totalInches = cm / cmPerInch;
     int feet = (totalInches / 12).floor();
@@ -506,103 +593,47 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return "$feet' $inches\"";
   }
 
-  /// UI: Displays a themed Neo-Brutalist selection dialog for unit switching.
-  void _showUnitDialog(String title, List<String> options, String currentOption, Function(String) onSelected) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: BrutalistContainer(
-          backgroundColor: Colors.white,
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              // Option list generated dynamically
-              ...options.map((option) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: BrutalistContainer(
-                  onTap: () {
-                    onSelected(option);
-                    Navigator.pop(context); // Close dialog on selection
-                  },
-                  backgroundColor: option == currentOption ? const Color(0xFFFFDE59) : Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        option == currentOption ? Icons.radio_button_checked : Icons.radio_button_off,
-                        color: Colors.black,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        option,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              )),
-              const SizedBox(height: 8),
-              // Attractive bold Close button
-              BrutalistButton(
-                label: _loc.translate('close'),
-                color: const Color(0xFFD32F2F), // Signature Red for dismissal
-                onTap: () => Navigator.pop(context),
-              ).animate().fadeIn(),
-            ],
-          ),
+  Widget _buildAdaptiveDialog(BuildContext dialogContext, Widget child) {
+    final screenWidth = MediaQuery.sizeOf(dialogContext).width;
+    final isTablet = screenWidth >= _tabletBreakpoint;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: isTablet ? 480 : double.infinity),
+          child: child,
         ),
       ),
     );
   }
 
-  /// UI: Displays a themed Neo-Brutalist dialog for language selection.
-  void _showLanguageDialog() {
+  void _showUnitDialog(String title, List<String> options, String currentOption, Function(String) onSelected) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: BrutalistContainer(
+      builder: (dialogContext) => _buildAdaptiveDialog(
+        dialogContext,
+        BrutalistContainer(
           backgroundColor: Colors.white,
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                _loc.translate('select_language'),
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-                textAlign: TextAlign.center,
-              ),
+              Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
               const SizedBox(height: 20),
-              ...AppLocalization.languages.entries.map((entry) => Padding(
+              ...options.map((option) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: BrutalistContainer(
-                  onTap: () {
-                    _changeLanguage(entry.key);
-                    Navigator.pop(context);
-                  },
-                  backgroundColor: entry.key == _currentLang ? const Color(0xFFFFDE59) : Colors.white,
+                  onTap: () { onSelected(option); Navigator.pop(dialogContext); },
+                  backgroundColor: option == currentOption ? const Color(0xFFFFDE59) : Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   child: Row(
                     children: [
-                      Icon(
-                        entry.key == _currentLang ? Icons.radio_button_checked : Icons.radio_button_off,
-                        color: Colors.black,
-                      ),
+                      Icon(option == currentOption ? Icons.radio_button_checked : Icons.radio_button_off, color: Colors.black),
                       const SizedBox(width: 12),
-                      Text(
-                        entry.value,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                      Text(option, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -611,8 +642,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               BrutalistButton(
                 label: _loc.translate('close'),
                 color: const Color(0xFFD32F2F),
-                onTap: () => Navigator.pop(context),
-              ).animate().fadeIn(),
+                onTap: () => Navigator.pop(dialogContext),
+              ),
             ],
           ),
         ),
@@ -620,7 +651,48 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  /// Helper: Builds a circular button for numeric increments or decrements.
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => _buildAdaptiveDialog(
+        dialogContext,
+        BrutalistContainer(
+          backgroundColor: Colors.white,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(_loc.translate('select_language'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              ...AppLocalization.languages.entries.map((entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: BrutalistContainer(
+                  onTap: () { _changeLanguage(entry.key); Navigator.pop(dialogContext); },
+                  backgroundColor: entry.key == _currentLang ? const Color(0xFFFFDE59) : Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Row(
+                    children: [
+                      Icon(entry.key == _currentLang ? Icons.radio_button_checked : Icons.radio_button_off, color: Colors.black),
+                      const SizedBox(width: 12),
+                      Text(entry.value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              )),
+              const SizedBox(height: 8),
+              BrutalistButton(
+                label: _loc.translate('close'),
+                color: const Color(0xFFD32F2F),
+                onTap: () => Navigator.pop(dialogContext),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildRoundButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
