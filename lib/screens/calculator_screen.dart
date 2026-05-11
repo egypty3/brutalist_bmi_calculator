@@ -33,6 +33,9 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
+  // User-configurable input state.
+  // These fields drive the entire screen, so any change to one of them should
+  // trigger a fresh BMI calculation and a rebuild of the visible widgets.
   int age = 25;
   double height = 170.0;
   double weight = 70.0;
@@ -40,27 +43,39 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   bool isCm = true;
   bool isKg = true;
 
+  // Localization is resolved once at startup from the system language, then
+  // updated manually when the user chooses another language from the dialog.
   late String _currentLang;
   late AppLocalization _loc;
 
+  // Derived BMI output values. These are not entered directly by the user;
+  // they are computed from the current input state and displayed in the UI.
   double bmi = 0;
   String classificationKey = "cat_n";
   Color classificationColor = Colors.black;
 
+  // Conversion constants used whenever the UI switches between metric and
+  // imperial representations for height and weight.
   static const double cmPerInch = 2.54;
   static const double kgPerLb = 0.45359237;
 
   @override
   void initState() {
     super.initState();
+    // Read the platform language and map it to one of the supported app
+    // translations. If the system language is not supported, fall back to English.
     String systemLang = PlatformDispatcher.instance.locale.languageCode;
     _currentLang = AppLocalization.languages.containsKey(systemLang) ? systemLang : 'en';
     _loc = AppLocalization(_currentLang);
+    // Perform the first calculation immediately so the screen opens with a
+    // valid BMI, category, and supporting metrics instead of empty placeholders.
     _calculate();
   }
 
   void _calculate() {
     setState(() {
+      // Delegate the math to the BMI helper class so this screen only focuses
+      // on presentation and user interaction.
       bmi = BMICalculator.calculateBMI(height, weight);
       final result = BMICalculator.getClassification(bmi);
       classificationKey = result.key;
@@ -70,6 +85,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   void _changeLanguage(String langCode) {
     setState(() {
+      // Swap the localization bundle and rebuild the screen so every visible
+      // label updates immediately to the chosen language.
       _currentLang = langCode;
       _loc = AppLocalization(langCode);
     });
@@ -80,6 +97,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Wrap the screen in Directionality so languages that read right-to-left
+    // automatically mirror the layout without requiring separate widgets.
     return Directionality(
       textDirection: _loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
@@ -99,6 +118,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
+            // Use a breakpoint-based layout switch so tablets get a two-column
+            // dashboard while phones keep a vertically scrolling experience.
             if (constraints.maxWidth >= _tabletBreakpoint) {
               return _buildTabletLayout();
             }
@@ -111,6 +132,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // ── PHONE LAYOUT (scrollable single-column) ───────────────────────────────
   Widget _buildPhoneLayout() {
+    // On phones, all sections are stacked in a single scrollable column so the
+    // user can move through inputs and results naturally from top to bottom.
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -133,6 +156,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // ── TABLET LAYOUT (two-column, no scroll) ─────────────────────────────────
   Widget _buildTabletLayout() {
+    // Tablets get a denser layout: inputs on the left, live results and the
+    // reference table on the right, with each side filling the available height.
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       child: Row(
@@ -180,6 +205,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   // ══════════════════════════════════════════════════════════════════════════
 
   Widget _genderRow({double iconSize = 40, double fontSize = 14}) {
+    // Two large selection cards let the user switch between male/female, which
+    // affects the estimated body-fat calculation.
     return Row(
       children: [
         Expanded(
@@ -214,6 +241,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   Widget _ageWeightRow() {
+    // Age is a simple numeric counter, while weight supports unit conversion.
+    // The displayed value is converted to match the currently selected unit.
     return Row(
       children: [
         Expanded(
@@ -229,6 +258,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             _loc.translate('weight'),
             isKg ? weight.toInt() : (weight / kgPerLb).round(),
                 (val) => setState(() {
+                  // Store weight internally in kilograms even when the interface is
+                  // showing pounds, so BMI math always uses a stable base unit.
               weight = isKg ? val.toDouble() : val * kgPerLb;
               _calculate();
             }),
@@ -247,6 +278,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   /// [expandSlider] adds a Spacer so the slider fills vertical space on tablet.
   Widget _heightCard({bool expandSlider = false}) {
+    // This card combines the current height readout, a unit selector, and a
+    // slider. On tablets, optional spacers spread those elements vertically.
     return BrutalistContainer(
       backgroundColor: Colors.white,
       child: Column(
@@ -282,6 +315,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       (val) => setState(() { isCm = val == 'CM'; _calculate(); }),
                 ),
                 child: Container(
+                  // The unit badge is styled as a high-contrast button so users
+                  // can tap it quickly without leaving the height card.
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.black,
@@ -316,6 +351,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   /// [tabletMode] makes the BMI number larger on tablet.
   Widget _resultsCard({bool tabletMode = false}) {
+    // The results card is split into three visual zones:
+    // 1) ideal weight range, 2) the primary BMI metric, and 3) estimated body fat.
     return BrutalistContainer(
       padding: EdgeInsets.zero,
       backgroundColor: Colors.white,
@@ -341,6 +378,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
+                        // The ideal weight range is recalculated from the current
+                        // height, then displayed in the same unit system the user chose.
                         isKg
                             ? '${BMICalculator.getIdealWeightRange(height)['min']!.toStringAsFixed(1)}kg'
                             : '${(BMICalculator.getIdealWeightRange(height)['min']! / kgPerLb).toStringAsFixed(1)}lb',
@@ -365,6 +404,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // The middle panel is intentionally the most prominent because
+                    // BMI is the app's core result and should be visually dominant.
                     const Text('BMI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     Text(
                       bmi.toStringAsFixed(1),
@@ -381,6 +422,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
+                        // The classification label comes from the BMI helper and is
+                        // translated before display so the category name localizes too.
                         _loc.translate(classificationKey).toUpperCase(),
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -411,6 +454,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
+                      // Body-fat percentage is only an estimate, but it gives users a
+                      // second health-related number that responds instantly to changes.
                       '${BMICalculator.estimateFatPercentage(bmi, age, isMale).toStringAsFixed(1)}%',
                       style: TextStyle(
                         fontSize: tabletMode ? 22 : 18,
@@ -429,6 +474,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   /// [scrollable] = false wraps in Expanded-friendly Column (tablet right panel).
   Widget _classificationSection({bool scrollable = true}) {
+    // The BMI reference table explains the meaning of the category returned by
+    // the calculation logic. It is static content, so only the labels localize.
     final expandRows = !scrollable;
     final table = BrutalistContainer(
       backgroundColor: Colors.white,
@@ -486,6 +533,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     bool isLast = false,
     bool expand = false,
   }) {
+    // Each reference row pairs a localized label with its numeric BMI range and
+    // color-codes the text to match the semantics of the classification.
     final row = Container(
       height: expand ? null : 52,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -521,6 +570,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         double iconSize = 40,
         double fontSize = 14,
       }) {
+    // The gender card is a reusable, tappable selector with a highlighted state
+    // so the active choice is always obvious.
     return BrutalistContainer(
       onTap: onTap,
       backgroundColor: selected ? const Color(0xFFFFDE59) : Colors.white,
@@ -542,6 +593,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         String unit = "",
         VoidCallback? onUnitTap,
       }) {
+    // This card is used for number-based inputs like age and weight. It keeps
+    // the display compact while exposing +/- buttons for quick adjustments.
     return BrutalistContainer(
       backgroundColor: Colors.white,
       child: Column(
@@ -587,6 +640,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   String _formatHeightInFeet(double cm) {
+    // Convert metric height to the common feet-and-inches format for imperial UI.
     double totalInches = cm / cmPerInch;
     int feet = (totalInches / 12).floor();
     int inches = (totalInches % 12).round();
@@ -594,6 +648,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   Widget _buildAdaptiveDialog(BuildContext dialogContext, Widget child) {
+    // Reuse a single dialog shell so unit selection and language selection look
+    // consistent on both narrow phones and wider tablets.
     final screenWidth = MediaQuery.sizeOf(dialogContext).width;
     final isTablet = screenWidth >= _tabletBreakpoint;
 
@@ -610,6 +666,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _showUnitDialog(String title, List<String> options, String currentOption, Function(String) onSelected) {
+    // Unit dialogs are intentionally simple: highlight the current choice, apply
+    // the new selection immediately, and close the dialog in one tap.
     showDialog(
       context: context,
       builder: (dialogContext) => _buildAdaptiveDialog(
@@ -652,6 +710,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _showLanguageDialog() {
+    // The language picker mirrors the unit picker, but its options come from the
+    // localization registry instead of a fixed list of measurement units.
     showDialog(
       context: context,
       builder: (dialogContext) => _buildAdaptiveDialog(
@@ -694,6 +754,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   Widget _buildRoundButton(IconData icon, VoidCallback onTap) {
+    // Small circular +/- buttons keep the counter controls compact and easy to
+    // tap while preserving the bold Brutalist visual style.
     return GestureDetector(
       onTap: onTap,
       child: Container(
