@@ -1,5 +1,15 @@
 <div dir="rtl" style="line-height:1.85;max-width:1100px;margin:0 auto;padding:0 10px;">
 
+<style>
+pre,
+pre code,
+code.language-dart {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+</style>
+
 <h1 style="background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;padding:16px 18px;border-radius:14px;border:2px solid #0ea5e9;">
 🧠📊 شرح مفصل جدا للمبتدئين: <span style="color:#67e8f9;">calculator_screen.dart</span>
 </h1>
@@ -94,150 +104,165 @@ initState يقوم بثلاث خطوات أساسية:
 
 ## 🧩 4) شرح مفصل للدوال المطلوبة
 
+<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;color:#0f172a;margin-bottom:14px;">
+📘 <b>فكرة هذا القسم:</b> في كل دالة سنشرح <b>دورها</b> داخل الشاشة، ثم <b>تسلسل عملها</b>، ثم <b>أهم نقطة يجب أن ينتبه لها المبتدئ</b>، وبعد ذلك سترى <b>الكود الفعلي للدالة</b> مباشرة أسفل الشرح.
+</div>
+
 ## 4.1 🧮 \_calculate() - حساب BMI + التصنيف + اللون
 
 <div style="background:#f0fdf4;border:1px solid #4ade80;border-radius:12px;padding:12px 14px;color:#0f172a;">
-هذه أهم دالة من ناحية المنطق.
+<b>🎯 الدور الرئيسي</b><br>
+هذه هي الدالة المركزية التي تحدّث نتيجة BMI المعروضة على الشاشة. كلما تغيّر أي إدخال مهم، تكون هذه الدالة هي المسؤولة عن إعادة حساب النتيجة وإعادة تصنيفها.
 
-<b>ماذا تفعل؟</b>
+<br><br><b>⚙️ كيف تعمل خطوة بخطوة؟</b>
 
 <ol>
-  <li>تدخل setState حتى أي تغيير ينعكس على الواجهة.</li>
-  <li>تستدعي BMICalculator.calculateBMI(height, weight).</li>
-  <li>تستدعي BMICalculator.getClassification(bmi).</li>
-  <li>تحفظ:
+  <li>تدخل إلى <b>setState</b> حتى يعرف Flutter أن هناك بيانات ستتغير ويجب إعادة رسم الواجهة.</li>
+  <li>تستدعي <b>BMICalculator.calculateBMI(height, weight)</b> لحساب قيمة BMI الرقمية.</li>
+  <li>تستدعي <b>BMICalculator.getClassification(bmi)</b> للحصول على الفئة المناسبة مثل طبيعي أو زيادة وزن، مع اللون المناسب لها.</li>
+  <li>تخزن النتيجة داخل متغيرات الحالة:
     <ul>
-      <li>classificationKey (اسم التصنيف كمفتاح ترجمة).</li>
-      <li>classificationColor (اللون المناسب للتصنيف).</li>
+      <li><b>classificationKey</b> لاستخدام اسم التصنيف داخل الترجمة.</li>
+      <li><b>classificationColor</b> لاستخدام اللون نفسه في بطاقة النتيجة.</li>
     </ul>
   </li>
 </ol>
 
-<b>لماذا هذا التصميم جيد؟</b>
+<b>🧠 لماذا هذا الأسلوب ممتاز؟</b>
 
 <ul>
-  <li>🧠 منطق الحساب في ملف منفصل bmi_logic.dart.</li>
-  <li>🎨 الشاشة تركز على واجهة المستخدم فقط.</li>
-  <li>🧪 سهل الاختبار والصيانة.</li>
+  <li>يفصل بين <b>منطق الحساب</b> و<b>واجهة العرض</b>.</li>
+  <li>يجعل أي تحديث في المدخلات ينعكس مباشرة على الشاشة.</li>
+  <li>يسهل لاحقا تعديل طريقة الحساب بدون تخريب UI.</li>
 </ul>
 
-<b>متى تستدعى \_calculate؟</b>
+<b>📌 متى يتم استدعاؤها؟</b>
 
 <ul>
   <li>عند تغيير الجنس.</li>
   <li>عند تغيير العمر.</li>
   <li>عند تغيير الوزن.</li>
   <li>عند تحريك Slider الطول.</li>
-  <li>عند تغيير وحدة القياس (لتحديث القيم المعروضة).</li>
+  <li>عند تغيير وحدة القياس إذا كان العرض يحتاج تحديثا فوريا.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _calculate()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">void _calculate()</span> {
-  <span style="color:#22d3ee;">setState</span>(() {
-    bmi = <span style="color:#facc15;">BMICalculator.calculateBMI</span>(height, weight);
-    final result = <span style="color:#f97316;">BMICalculator.getClassification</span>(bmi);
-    classificationKey = <span style="color:#4ade80;">result.key</span>;
-    classificationColor = <span style="color:#4ade80;">result.color</span>;
+### 💻 الكود الفعلي للدالة: `_calculate()`
+
+```dart
+void _calculate() {
+  setState(() {
+    bmi = BMICalculator.calculateBMI(height, weight);
+    final result = BMICalculator.getClassification(bmi);
+    classificationKey = result.key;
+    classificationColor = result.color;
   });
-}</pre>
-  </div>
-</div>
+}
+```
 
 ## 4.2 📱 \_buildPhoneLayout() - تخطيط الهاتف (عمود قابل للتمرير)
 
 <div style="background:#eff6ff;border:1px solid #60a5fa;border-radius:12px;padding:12px 14px;color:#0f172a;">
-على الهاتف، العرض محدود، لذلك يتم وضع كل الأقسام في Column واحدة داخل SingleChildScrollView.
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تبني نسخة الشاشة الخاصة بالهاتف. بما أن عرض الهاتف ضيق وارتفاعه محدود، فالمحتوى يترتب رأسيًا من الأعلى إلى الأسفل.
 
-<b>ترتيب الأقسام:</b>
+<br><br><b>⚙️ كيف يرتب الواجهة؟</b>
 
 <ol>
-  <li>اختيار الجنس.</li>
-  <li>العمر والوزن.</li>
-  <li>بطاقة الطول.</li>
-  <li>بطاقة النتائج.</li>
-  <li>جدول التصنيفات.</li>
+  <li>يضع كل شيء داخل <b>SingleChildScrollView</b>.</li>
+  <li>داخل الـ scroll يستخدم <b>Column</b> رئيسية.</li>
+  <li>يضيف أقسام الشاشة بهذا الترتيب:
+    <ul>
+      <li>اختيار الجنس.</li>
+      <li>العمر والوزن.</li>
+      <li>بطاقة الطول.</li>
+      <li>بطاقة النتائج.</li>
+      <li>جدول التصنيفات.</li>
+    </ul>
+  </li>
 </ol>
 
-<b>لماذا SingleChildScrollView؟</b>
+<b>🧠 لماذا هذا مناسب للهاتف؟</b>
 
 <ul>
-  <li>لأن المحتوى غالبا أطول من الشاشة.</li>
-  <li>يضمن الوصول لكل جزء بالسحب للأعلى/الأسفل.</li>
+  <li>لأن المساحة الأفقية صغيرة.</li>
+  <li>ولأن بعض الأقسام قد لا تتسع كلها في نفس الارتفاع.</li>
+  <li>لذلك يكون التمرير الرأسي هو السلوك الطبيعي والأبسط للمستخدم.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _buildPhoneLayout()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">Widget _buildPhoneLayout()</span> {
-  return <span style="color:#22d3ee;">SingleChildScrollView</span>(
+### 💻 الكود الفعلي للدالة: `_buildPhoneLayout()`
+
+```dart
+Widget _buildPhoneLayout() {
+  return SingleChildScrollView(
     padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        <span style="color:#facc15;">_genderRow()</span>,
+        _genderRow(),
         const SizedBox(height: 24),
-        <span style="color:#facc15;">_ageWeightRow()</span>,
+        _ageWeightRow(),
         const SizedBox(height: 24),
-        <span style="color:#facc15;">_heightCard()</span>,
+        _heightCard(),
         const SizedBox(height: 32),
-        <span style="color:#facc15;">_resultsCard()</span>,
+        _resultsCard(),
         const SizedBox(height: 32),
-        <span style="color:#facc15;">_classificationSection()</span>,
+        _classificationSection(),
         const SizedBox(height: 40),
       ],
     ),
   );
-}</pre>
-  </div>
-</div>
+}
+```
 
 ## 4.3 🖥️ \_buildTabletLayout() - تخطيط التابلت (عمودان بلا تمرير عام)
 
 <div style="background:#faf5ff;border:1px solid #c084fc;border-radius:12px;padding:12px 14px;color:#0f172a;">
-على التابلت، الشاشة أوسع؛ لذلك التصميم يصبح Dashboard من عمودين:
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تبني نسخة الشاشة الخاصة بالتابلت. الهدف هنا ليس مجرد تكبير عناصر الهاتف، بل إعادة توزيع المحتوى ليستفيد من المساحة الواسعة.
+
+<br><br><b>⚙️ كيف يقسم الشاشة؟</b>
+
 <ul>
-  <li>⬅️ العمود الأيسر: المدخلات.</li>
-  <li>➡️ العمود الأيمن: النتائج + جدول التصنيفات.</li>
+  <li>⬅️ <b>العمود الأيسر</b>: مدخلات المستخدم.</li>
+  <li>➡️ <b>العمود الأيمن</b>: النتائج + جدول التصنيفات.</li>
 </ul>
 
-<b>تفاصيل العمود الأيسر:</b>
+<b>📚 تفاصيل العمود الأيسر</b>
 
 <ol>
-  <li>صف الجنس (ارتفاع ثابت).</li>
-  <li>صف العمر/الوزن (ارتفاع ثابت).</li>
-  <li>بطاقة الطول داخل Expanded لتملأ باقي المساحة.</li>
+  <li>صف الجنس.</li>
+  <li>صف العمر والوزن.</li>
+  <li>بطاقة الطول داخل <b>Expanded</b> حتى تملأ المساحة المتبقية.</li>
 </ol>
 
-<b>تفاصيل العمود الأيمن:</b>
+<b>📊 تفاصيل العمود الأيمن</b>
 
 <ol>
-  <li>بطاقة النتائج (ارتفاع ثابت تقريبا).</li>
-  <li>جدول التصنيفات داخل Expanded ليملأ ما تبقى.</li>
+  <li>بطاقة النتائج في الأعلى.</li>
+  <li>جدول التصنيفات في الأسفل داخل <b>Expanded</b>.</li>
 </ol>
 
-<b>لماذا بلا تمرير عام؟</b>
+<b>🧠 لماذا هذا التصميم أفضل للتابلت؟</b>
 
 <ul>
-  <li>⚡ تجربة أسرع على الشاشات الكبيرة.</li>
-  <li>👀 كل شيء يظهر في نفس الوقت غالبا.</li>
-  <li>🧱 إحساس أقرب للوحة معلومات ثابتة.</li>
+  <li>يعرض عناصر أكثر في نفس اللحظة.</li>
+  <li>يقلل الحاجة إلى التمرير العام.</li>
+  <li>يعطي الشاشة شكل dashboard أوضح وأكثر احترافية.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _buildTabletLayout()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">Widget _buildTabletLayout()</span> {
+### 💻 الكود الفعلي للدالة: `_buildTabletLayout()`
+
+```dart
+Widget _buildTabletLayout() {
   return Padding(
     padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        <span style="color:#22d3ee;">Expanded</span>(
+        Expanded(
           flex: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -246,152 +271,153 @@ initState يقوم بثلاث خطوات أساسية:
               const SizedBox(height: 16),
               _ageWeightRow(),
               const SizedBox(height: 16),
-              <span style="color:#facc15;">Expanded(child: _heightCard(expandSlider: true))</span>,
+              Expanded(child: _heightCard(expandSlider: true)),
             ],
           ),
         ),
         const SizedBox(width: 20),
-        <span style="color:#22d3ee;">Expanded</span>(
+        Expanded(
           flex: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _resultsCard(tabletMode: true),
               const SizedBox(height: 16),
-              <span style="color:#f97316;">Expanded(child: _classificationSection(scrollable: false))</span>,
+              Expanded(child: _classificationSection(scrollable: false)),
             ],
           ),
         ),
       ],
     ),
   );
-}</pre>
-  </div>
-</div>
+}
+```
 
 ## 4.4 📚 \_classificationSection() - بناء جدول التصنيفات بسلوكين (scrollable / non-scrollable)
 
 <div style="background:#fff7ed;border:1px solid #fb923c;border-radius:12px;padding:12px 14px;color:#0f172a;">
-هذه الدالة تبني قسم المرجع (Reference) الذي يحتوي على مستويات BMI.
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تبني قسم المرجع الذي يعرض جميع تصنيفات BMI مع حدود كل تصنيف. وهي من أكثر الدوال أهمية في تنسيق الواجهة لأن سلوكها يتغير بين الهاتف والتابلت.
 
-<b>لها باراميتر مهم: scrollable</b>
+<br><br><b>⚙️ الفكرة الأساسية</b><br>
+الدالة تستقبل باراميتر واحد اسمه <b>scrollable</b>، ومن خلاله تحدد هل ستتصرف كقسم عادي داخل صفحة قابلة للتمرير، أم كقسم يتمدد لملء المساحة داخل تخطيط التابلت.
+
+<br><br><b>📱 إذا كانت القيمة scrollable = true</b>
 
 <ul>
-  <li>إذا scrollable = true (وضع الهاتف):
-    <ul>
-      <li>ترجع Column عادية.</li>
-      <li>الجدول يظهر بحجم طبيعي داخل الصفحة القابلة للتمرير.</li>
-    </ul>
-  </li>
-  <li>إذا scrollable = false (وضع التابلت):
-    <ul>
-      <li>ترجع Column فيها Expanded(child: table).</li>
-      <li>الجدول يتمدد ليملأ المساحة في العمود الأيمن.</li>
-    </ul>
-  </li>
+  <li>ترجع <b>Column</b> عادية.</li>
+  <li>الجدول يظهر بحجمه الطبيعي.</li>
+  <li>يعمل بشكل مناسب داخل الهاتف لأن الصفحة أصلًا قابلة للتمرير.</li>
 </ul>
 
-<b>لماذا هذا الفرق مهم جدا؟</b>
+<b>🖥️ إذا كانت القيمة scrollable = false</b>
 
 <ul>
-  <li>استخدام Expanded داخل بيئة غير محدودة الارتفاع قد يسبب أخطاء layout.</li>
-  <li>هذا التصميم يتجنب المشكلة في الهاتف ويستفيد من التمدد في التابلت.</li>
+  <li>ترجع <b>Column</b> تحتوي على <b>Expanded(child: table)</b>.</li>
+  <li>هذا يجعل الجدول يتمدد ليشغل المساحة المتوفرة في العمود الأيمن بالتابلت.</li>
+</ul>
+
+<b>🧠 لماذا هذا الفرق مهم؟</b>
+
+<ul>
+  <li>لأن <b>Expanded</b> لا يعمل بشكل صحيح داخل بعض السياقات القابلة للتمرير.</li>
+  <li>لذلك الدالة تتجنب الخطأ في الهاتف، وتستفيد من التمدد في التابلت.</li>
+  <li>هذه نقطة مهمة جدا لفهم الفرق بين <b>bounded height</b> و<b>unbounded height</b> في Flutter.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _classificationSection()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">Widget _classificationSection({bool scrollable = true})</span> {
-  final expandRows = <span style="color:#22d3ee;">!scrollable</span>;
+### 💻 الكود الفعلي للدالة: `_classificationSection()`
+
+```dart
+Widget _classificationSection({bool scrollable = true}) {
+  final expandRows = !scrollable;
   final table = BrutalistContainer(
     backgroundColor: Colors.white,
     padding: EdgeInsets.zero,
     child: Column(
       children: [
-        _buildClassificationRow(_loc.translate('cat_vsu'), '&lt; 16',      const Color(0xFFFF5252), expand: expandRows),
+        _buildClassificationRow(_loc.translate('cat_vsu'), '< 16',      const Color(0xFFFF5252), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_su'),  '16 - 17',   const Color(0xFFFF7043), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_u'),   '17 - 18.5', const Color(0xFFE65100), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_n'),   '18.5 - 25', const Color(0xFF4CAF50), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_o'),   '25 - 30',   const Color(0xFFF57F17), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_o1'),  '30 - 35',   const Color(0xFFFF8A65), expand: expandRows),
         _buildClassificationRow(_loc.translate('cat_o2'),  '35 - 40',   const Color(0xFFF4511E), expand: expandRows),
-        _buildClassificationRow(_loc.translate('cat_o3'),  '&gt; 40',      const Color(0xFFD32F2F), isLast: true, expand: expandRows),
+        _buildClassificationRow(_loc.translate('cat_o3'),  '> 40',      const Color(0xFFD32F2F), isLast: true, expand: expandRows),
       ],
     ),
   );
 
-<span style="color:#f97316;">if (!scrollable)</span> {
-return Column(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-Text(_loc.translate('reference'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-const SizedBox(height: 12),
-<span style="color:#facc15;">Expanded(child: table)</span>,
-],
-);
+  if (!scrollable) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          _loc.translate('reference'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+        const SizedBox(height: 12),
+        Expanded(child: table),
+      ],
+    );
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        _loc.translate('reference'),
+        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+      ),
+      const SizedBox(height: 12),
+      table,
+    ],
+  );
 }
-
-return Column(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-Text(_loc.translate('reference'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-const SizedBox(height: 12),
-table,
-],
-);
-}</pre>
-
-  </div>
-</div>
+```
 
 ## 4.5 🧱 \_buildClassificationRow() - صف مرجعي مع expand اختياري
 
 <div style="background:#f9fafb;border:1px solid #d1d5db;border-radius:12px;padding:12px 14px;color:#0f172a;">
-كل صف في الجدول يمثل:
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تبني <b>صفًا واحدًا فقط</b> داخل جدول التصنيفات. أي أن القسم الكامل يعتمد عليها لتكرار نفس الشكل لكل فئة من فئات BMI.
+
+<br><br><b>📦 ما الذي تمثله بيانات الصف؟</b>
+
 <ul>
-  <li>اسم الفئة (label).</li>
-  <li>النطاق الرقمي (range).</li>
-  <li>اللون الدلالي (color).</li>
+  <li><b>label</b>: اسم الفئة.</li>
+  <li><b>range</b>: المجال الرقمي لهذه الفئة.</li>
+  <li><b>color</b>: اللون البصري المرتبط بها.</li>
 </ul>
 
-<b>الباراميترات:</b>
+<b>⚙️ ما وظيفة الباراميترات الإضافية؟</b>
 
 <ul>
-  <li>isLast: إذا الصف الأخير، لا يضيف خط سفلي.</li>
-  <li>expand:
-    <ul>
-      <li>false: ارتفاع ثابت (52).</li>
-      <li>true: يرجع Expanded(child: row) لتوزيع المساحة عموديا.</li>
-    </ul>
-  </li>
+  <li><b>isLast</b>: يمنع رسم الحد السفلي إذا كان هذا آخر صف.</li>
+  <li><b>expand</b>: يحدد هل الصف سيأخذ ارتفاعًا ثابتًا أم يتمدد داخل <b>Expanded</b>.</li>
 </ul>
 
-<b>متى نستخدم expand=true؟</b>
+<b>🧠 لماذا هذا التصميم جيد؟</b>
 
 <ul>
-  <li>في وضع التابلت غير القابل للتمرير حتى تتوازن الصفوف بصريا.</li>
-</ul>
-
-<b>متى نستخدم expand=false؟</b>
-
-<ul>
-  <li>في وضع الهاتف القابل للتمرير لتجنب مشاكل القيود.</li>
+  <li>يعيد استخدام نفس البنية بدل كتابة 8 صفوف يدويًا بأكواد مختلفة.</li>
+  <li>يوحّد شكل الصفوف بالكامل.</li>
+  <li>يسمح بتغيير السلوك بين الهاتف والتابلت من خلال باراميتر صغير فقط.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _buildClassificationRow()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">Widget _buildClassificationRow(
+### 💻 الكود الفعلي للدالة: `_buildClassificationRow()`
+
+```dart
+Widget _buildClassificationRow(
   String label,
   String range,
   Color color, {
   bool isLast = false,
   bool expand = false,
-})</span> {
+}) {
   final row = Container(
-    <span style="color:#22d3ee;">height: expand ? null : 52</span>,
+    height: expand ? null : 52,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
     decoration: BoxDecoration(
       border: isLast ? null : const Border(bottom: BorderSide(color: Colors.black, width: 1)),
@@ -410,113 +436,103 @@ table,
     ),
   );
 
-<span style="color:#f97316;">if (expand)</span> {
-return <span style="color:#facc15;">Expanded(child: row)</span>;
+  if (expand) {
+    return Expanded(child: row);
+  }
+
+  return row;
 }
-
-return row;
-}</pre>
-
-  </div>
-</div>
+```
 
 ## 4.6 🧩 \_buildAdaptiveDialog() - قالب dialog بعرض متكيف للتابلت/الهاتف
 
 <div style="background:#ecfeff;border:1px solid #22d3ee;border-radius:12px;padding:12px 14px;color:#0f172a;">
-هذه دالة تصميم (UI shell) وليست دالة منطق.
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة لا تحسب شيئا، لكنها تبني <b>القالب العام</b> لأي Dialog في الشاشة. بمعنى آخر: هي الهيكل الخارجي الموحد الذي ستوضع بداخله نافذة اختيار اللغة أو نافذة اختيار الوحدة.
 
-<b>ماذا تفعل؟</b>
+<br><br><b>⚙️ كيف تعمل؟</b>
 
 <ol>
-  <li>تقرأ عرض الشاشة من MediaQuery.</li>
-  <li>تعتبر الجهاز تابلت إذا العرض >= 600.</li>
-  <li>ترجع Dialog شفاف الخلفية.</li>
-  <li>داخل Dialog تستخدم ConstrainedBox:
-    <ul>
-      <li>maxWidth = 480 في التابلت.</li>
-      <li>maxWidth غير محدود تقريبا في الهاتف.</li>
-    </ul>
-  </li>
+  <li>تقرأ عرض الشاشة الحالي باستخدام <b>MediaQuery</b>.</li>
+  <li>تحدد هل العرض يعتبر تابلت أم لا.</li>
+  <li>تبني <b>Dialog</b> بخلفية شفافة.</li>
+  <li>تغلف المحتوى داخل <b>ConstrainedBox</b> حتى لا يصبح الحوار عريضًا أكثر من اللازم على التابلت.</li>
 </ol>
 
-<b>الفائدة:</b>
+<b>🧠 لماذا هذه الدالة مهمة؟</b>
 
 <ul>
-  <li>🎨 توحيد شكل الحوارات.</li>
-  <li>📐 منع التمدد المزعج على الشاشات العريضة.</li>
-  <li>♻️ إعادة استخدام القالب في أكثر من مكان.</li>
+  <li>توحد شكل الحوارات في كل الشاشة.</li>
+  <li>تمنع الأحجام المزعجة على الأجهزة الكبيرة.</li>
+  <li>تجعل أي Dialog جديد أسهل في الإضافة لاحقا.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _buildAdaptiveDialog()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">Widget _buildAdaptiveDialog(BuildContext dialogContext, Widget child)</span> {
-  final screenWidth = <span style="color:#22d3ee;">MediaQuery.sizeOf(dialogContext).width</span>;
-  final isTablet = <span style="color:#f97316;">screenWidth &gt;= _tabletBreakpoint</span>;
+### 💻 الكود الفعلي للدالة: `_buildAdaptiveDialog()`
 
-return Dialog(
-backgroundColor: Colors.transparent,
-insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-child: Center(
-child: ConstrainedBox(
-constraints: BoxConstraints(
-<span style="color:#facc15;">maxWidth: isTablet ? 480 : double.infinity</span>,
-),
-child: child,
-),
-),
-);
-}</pre>
+```dart
+Widget _buildAdaptiveDialog(BuildContext dialogContext, Widget child) {
+  final screenWidth = MediaQuery.sizeOf(dialogContext).width;
+  final isTablet = screenWidth >= _tabletBreakpoint;
 
-  </div>
-</div>
+  return Dialog(
+    backgroundColor: Colors.transparent,
+    insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isTablet ? 480 : double.infinity),
+        child: child,
+      ),
+    ),
+  );
+}
+```
 
 ## 4.7 ⚖️ \_showUnitDialog() - اختيار وحدة الوزن/الطول
 
 <div style="background:#fefce8;border:1px solid #facc15;border-radius:12px;padding:12px 14px;color:#0f172a;">
-هذه الدالة تفتح نافذة اختيار وحدة قياس.
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تعرض للمستخدم نافذة لاختيار وحدة القياس، سواء لوحدة الوزن أو لوحدة الطول. الجميل فيها أنها <b>عامة</b> وليست مكتوبة لوحدة واحدة فقط.
 
-<b>مدخلاتها:</b>
+<br><br><b>📥 ما الذي تستقبله؟</b>
 
 <ul>
-  <li>title: عنوان النافذة.</li>
-  <li>options: الخيارات (KG/LB أو CM/FT + IN).</li>
-  <li>currentOption: الخيار الحالي.</li>
-  <li>onSelected: ما ينفذ عند اختيار المستخدم.</li>
+  <li><b>title</b>: عنوان النافذة.</li>
+  <li><b>options</b>: قائمة الخيارات.</li>
+  <li><b>currentOption</b>: الخيار المحدد حاليا.</li>
+  <li><b>onSelected</b>: الدالة التي تنفذ عند اختيار قيمة جديدة.</li>
 </ul>
 
-<b>كيف تعمل؟</b>
+<b>⚙️ كيف تعمل؟</b>
 
 <ol>
-  <li>showDialog يفتح النافذة.</li>
-  <li>تستخدم _buildAdaptiveDialog لعرض مناسب لكل جهاز.</li>
-  <li>تعرض الخيارات كعناصر قابلة للنقر.</li>
-  <li>عند اختيار عنصر:
+  <li>تفتح Dialog باستخدام <b>showDialog</b>.</li>
+  <li>تستخدم <b>_buildAdaptiveDialog</b> كقالب خارجي.</li>
+  <li>تبني قائمة الخيارات بشكل قابل للنقر.</li>
+  <li>عند الضغط على خيار:
     <ul>
-      <li>تنفذ onSelected(option).</li>
-      <li>تغلق النافذة Navigator.pop.</li>
+      <li>تحدّث القيمة عبر <b>onSelected</b>.</li>
+      <li>تغلق الحوار مباشرة عبر <b>Navigator.pop</b>.</li>
     </ul>
   </li>
-  <li>يوجد زر Close للإغلاق اليدوي.</li>
 </ol>
 
-<b>لماذا مفيدة؟</b>
+<b>🧠 لماذا هي مفيدة؟</b>
 
 <ul>
-  <li>نفس الدالة تصلح للوزن والطول.</li>
-  <li>تقلل تكرار الكود.</li>
-  <li>سلوك موحد للمستخدم.</li>
+  <li>تصلح للوزن والطول معًا.</li>
+  <li>تختصر تكرار الكود.</li>
+  <li>توحد سلوك نوافذ الاختيار.</li>
 </ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _showUnitDialog()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">void _showUnitDialog(String title, List&lt;String&gt; options, String currentOption, Function(String) onSelected)</span> {
-  <span style="color:#22d3ee;">showDialog</span>(
+### 💻 الكود الفعلي للدالة: `_showUnitDialog()`
+
+```dart
+void _showUnitDialog(String title, List<String> options, String currentOption, Function(String) onSelected) {
+  showDialog(
     context: context,
-    builder: (dialogContext) =&gt; <span style="color:#facc15;">_buildAdaptiveDialog</span>(
+    builder: (dialogContext) => _buildAdaptiveDialog(
       dialogContext,
       BrutalistContainer(
         backgroundColor: Colors.white,
@@ -527,10 +543,13 @@ child: child,
           children: [
             Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
             const SizedBox(height: 20),
-            ...options.map((option) =&gt; Padding(
+            ...options.map((option) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: BrutalistContainer(
-                onTap: () { <span style="color:#4ade80;">onSelected(option)</span>; <span style="color:#f97316;">Navigator.pop(dialogContext)</span>; },
+                onTap: () {
+                  onSelected(option);
+                  Navigator.pop(dialogContext);
+                },
                 backgroundColor: option == currentOption ? const Color(0xFFFFDE59) : Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 child: Row(
@@ -546,43 +565,55 @@ child: child,
             BrutalistButton(
               label: _loc.translate('close'),
               color: const Color(0xFFD32F2F),
-              onTap: () =&gt; Navigator.pop(dialogContext),
+              onTap: () => Navigator.pop(dialogContext),
             ),
           ],
         ),
       ),
     ),
   );
-}</pre>
-  </div>
-</div>
+}
+```
 
 ## 4.8 🌍 \_showLanguageDialog() - تغيير اللغة داخل الشاشة
 
 <div style="background:#f0fdf4;border:1px solid #4ade80;border-radius:12px;padding:12px 14px;color:#0f172a;">
-تشبه _showUnitDialog في الشكل، لكن المصدر مختلف:
+<b>🎯 الدور الرئيسي</b><br>
+هذه الدالة تعرض نافذة تغيير اللغة من داخل الشاشة نفسها، بدون الحاجة للخروج من الصفحة أو إعادة تشغيل التطبيق.
+
+<br><br><b>⚙️ كيف تختلف عن \_showUnitDialog؟</b>
+
 <ul>
-  <li>الخيارات تأتي من AppLocalization.languages.</li>
-  <li>عند الاختيار تستدعي _changeLanguage(entry.key).</li>
+  <li>الشكل العام متشابه.</li>
+  <li>لكن البيانات هنا تأتي من <b>AppLocalization.languages</b>.</li>
+  <li>وعند اختيار لغة جديدة يتم استدعاء <b>_changeLanguage(entry.key)</b>.</li>
 </ul>
 
-<b>نتيجة اختيار اللغة:</b>
+<b>🔁 ماذا يحدث بعد اختيار اللغة؟</b>
 
 <ol>
-  <li>تحديث _currentLang.</li>
-  <li>إعادة إنشاء _loc.</li>
-  <li>إعادة بناء الشاشة مباشرة.</li>
-  <li>كل النصوص تتغير فورا عبر _loc.translate(...).</li>
+  <li>يتغير <b>_currentLang</b>.</li>
+  <li>يعاد إنشاء كائن <b>_loc</b>.</li>
+  <li>تعمل الشاشة rebuild.</li>
+  <li>تتغير النصوص واتجاه الواجهة فورا.</li>
 </ol>
+
+<b>🧠 لماذا هذا ممتاز لتجربة المستخدم؟</b>
+
+<ul>
+  <li>لأن المستخدم يرى أثر اختياره مباشرة.</li>
+  <li>ولأن تغيير اللغة لا يحتاج خطوات إضافية.</li>
+  <li>كما أن نفس البنية قابلة للتوسع إذا أضيفت لغات جديدة لاحقا.</li>
+</ul>
 </div>
 
-<div dir="ltr" style="margin:10px 0 18px 0;text-align:left;">
-  <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;overflow:auto;padding:12px 14px;color:#e2e8f0;">
-    <div style="color:#93c5fd;font-weight:800;margin-bottom:8px;">Actual Method Code: _showLanguageDialog()</div>
-    <pre style="margin:0;white-space:pre;direction:ltr;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;"><span style="color:#c084fc;">void _showLanguageDialog()</span> {
-  <span style="color:#22d3ee;">showDialog</span>(
+### 💻 الكود الفعلي للدالة: `_showLanguageDialog()`
+
+```dart
+void _showLanguageDialog() {
+  showDialog(
     context: context,
-    builder: (dialogContext) =&gt; <span style="color:#facc15;">_buildAdaptiveDialog</span>(
+    builder: (dialogContext) => _buildAdaptiveDialog(
       dialogContext,
       BrutalistContainer(
         backgroundColor: Colors.white,
@@ -593,10 +624,13 @@ child: child,
           children: [
             Text(_loc.translate('select_language'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
             const SizedBox(height: 20),
-            ...AppLocalization.languages.entries.map((entry) =&gt; Padding(
+            ...AppLocalization.languages.entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: BrutalistContainer(
-                onTap: () { <span style="color:#4ade80;">_changeLanguage(entry.key)</span>; <span style="color:#f97316;">Navigator.pop(dialogContext)</span>; },
+                onTap: () {
+                  _changeLanguage(entry.key);
+                  Navigator.pop(dialogContext);
+                },
                 backgroundColor: entry.key == _currentLang ? const Color(0xFFFFDE59) : Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 child: Row(
@@ -612,16 +646,15 @@ child: child,
             BrutalistButton(
               label: _loc.translate('close'),
               color: const Color(0xFFD32F2F),
-              onTap: () =&gt; Navigator.pop(dialogContext),
+              onTap: () => Navigator.pop(dialogContext),
             ),
           ],
         ),
       ),
     ),
   );
-}</pre>
-  </div>
-</div>
+}
+```
 
 <hr style="border:none;height:3px;background:linear-gradient(90deg,#38bdf8,#f97316,#22c55e);border-radius:999px;" />
 
