@@ -18,8 +18,12 @@
 //   for intuitive unit and language selection.
 // ============================================================================
 
+
+
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/brutalist_widgets.dart';
 import '../utils/bmi_logic.dart';
 import '../utils/localization.dart';
@@ -59,6 +63,21 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   static const double cmPerInch = 2.54;
   static const double kgPerLb = 0.45359237;
 
+  // Height limits are shared by both slider and +/- controls so every input path
+  // respects the same valid range.
+  static const double _minHeightCm = 100;
+  static const double _maxHeightCm = 220;
+
+  // Ad state for the bottom banner shown on supported mobile platforms.
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
+  // Ad unit from AdMob screenshot (Android production banner).
+  static const String _androidBannerAdUnitId =
+      'ca-app-pub-5785609346141040/9590890493';
+  static const String _iosTestBannerAdUnitId =
+      'ca-app-pub-3940256099942544/2934735716';
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +89,79 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     // Perform the first calculation immediately so the screen opens with a
     // valid BMI, category, and supporting metrics instead of empty placeholders.
     _calculate();
+    // Load the banner after first layout so adaptive sizing can read screen width.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBannerAd();
+    });
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  String? get _bannerAdUnitId {
+    // Keep ad loading scoped to mobile targets. Desktop/web can render without ads.
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return _androidBannerAdUnitId;
+      case TargetPlatform.iOS:
+        // No iOS unit is configured yet; using test ID prevents invalid requests.
+        return _iosTestBannerAdUnitId;
+      default:
+        return null;
+    }
+  }
+
+  Future<void> _loadBannerAd() async {
+    final adUnitId = _bannerAdUnitId;
+    if (adUnitId == null) return;
+
+    // Use the current view width to request an anchored adaptive banner.
+    final mediaQuery = MediaQuery.maybeOf(context);
+    if (mediaQuery == null) return;
+    final adWidth = mediaQuery.size.width.truncate();
+    if (adWidth <= 0) return;
+
+    final adaptiveSize =
+        await AdSize.getLargeAnchoredAdaptiveBannerAdSize(adWidth);
+    if (adaptiveSize == null || !mounted) return;
+
+    // Dispose any previous banner before replacing it.
+    _bannerAd?.dispose();
+    setState(() {
+      _bannerAd = null;
+      _isBannerAdReady = false;
+    });
+
+    final banner = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: adaptiveSize,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
+          setState(() {
+            _bannerAd = ad as BannerAd;
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          if (!mounted) return;
+          setState(() {
+            _isBannerAdReady = false;
+          });
+          debugPrint('Banner ad failed to load: $error');
+        },
+      ),
+    );
+
+    banner.load();
   }
 
   void _calculate() {
@@ -89,6 +181,18 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       // label updates immediately to the chosen language.
       _currentLang = langCode;
       _loc = AppLocalization(langCode);
+    });
+  }
+
+  /// Uses 1 cm in metric mode, or 1 inch (2.54 cm) in imperial mode.
+  double get _heightStep => isCm ? 1.0 : cmPerInch;
+
+  /// Applies a +/- step to height and clamps to the same range as the slider.
+  void _changeHeightByStep(int direction) {
+    final updated = (height + (direction * _heightStep)).clamp(_minHeightCm, _maxHeightCm);
+    setState(() {
+      height = updated.toDouble();
+      _calculate();
     });
   }
 
@@ -126,6 +230,26 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             return _buildPhoneLayout();
           },
         ),
+        bottomNavigationBar: _buildBannerArea(),
+      ),
+    );
+  }
+
+  Widget _buildBannerArea() {
+    // Reserve space only when the ad is ready so loading does not jump the layout.
+    if (!_isBannerAdReady || _bannerAd == null) {
+      return const SizedBox.shrink();
+    }
+
+    final ad = _bannerAd!;
+    return SafeArea(
+      top: false,
+      child: Container(
+        alignment: Alignment.center,
+        color: Colors.white,
+        width: double.infinity,
+        height: ad.size.height.toDouble(),
+        child: AdWidget(ad: ad),
       ),
     );
   }
@@ -282,69 +406,105 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     // slider. On tablets, optional spacers spread those elements vertically.
     return BrutalistContainer(
       backgroundColor: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (expandSlider) const Spacer(),
-          Text(
-            _loc.translate('height'),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = expandSlider && constraints.maxHeight < 170;
+
+          return Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
             children: [
-              if (isCm)
-                Text(
-                  height.toStringAsFixed(0),
-                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900),
-                )
-              else
-                Text(
-                  _formatHeightInFeet(height),
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
-                ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () => _showUnitDialog(
-                  _loc.translate('height_unit'),
-                  ['CM', 'FT + IN'],
-                  isCm ? 'CM' : 'FT + IN',
-                      (val) => setState(() { isCm = val == 'CM'; _calculate(); }),
-                ),
-                child: Container(
-                  // The unit badge is styled as a high-contrast button so users
-                  // can tap it quickly without leaving the height card.
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    isCm ? 'CM' : 'FT+IN',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
+              if (expandSlider && !compact) const Spacer(),
+              Text(
+                _loc.translate('height'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: compact ? 14 : 16,
                 ),
               ),
+              SizedBox(height: compact ? 4 : 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildRoundButton(
+                    Icons.remove,
+                    () => _changeHeightByStep(-1),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        if (isCm)
+                          Text(
+                            height.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: compact ? 40 : 48,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          )
+                        else
+                          Text(
+                            _formatHeightInFeet(height),
+                            style: TextStyle(
+                              fontSize: compact ? 28 : 32,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        SizedBox(width: compact ? 6 : 8),
+                        GestureDetector(
+                          onTap: () => _showUnitDialog(
+                            _loc.translate('height_unit'),
+                            ['CM', 'FT + IN'],
+                            isCm ? 'CM' : 'FT + IN',
+                                (val) => setState(() { isCm = val == 'CM'; _calculate(); }),
+                          ),
+                          child: Container(
+                            // The unit badge is styled as a high-contrast button so users
+                            // can tap it quickly without leaving the height card.
+                            padding: EdgeInsets.symmetric(
+                              horizontal: compact ? 8 : 10,
+                              vertical: compact ? 2 : 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              isCm ? 'CM' : 'FT+IN',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: compact ? 11 : 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildRoundButton(
+                    Icons.add,
+                    () => _changeHeightByStep(1),
+                  ),
+                ],
+              ),
+              SizedBox(height: compact ? 4 : 8),
+              Slider(
+                value: height,
+                min: _minHeightCm,
+                max: _maxHeightCm,
+                activeColor: Colors.black,
+                inactiveColor: Colors.black12,
+                onChanged: (val) => setState(() {
+                  height = val.clamp(_minHeightCm, _maxHeightCm);
+                  _calculate();
+                }),
+              ),
+              if (expandSlider && !compact) const Spacer(),
             ],
-          ),
-          if (expandSlider) const Spacer(),
-          Slider(
-            value: height,
-            min: 100,
-            max: 220,
-            activeColor: Colors.black,
-            inactiveColor: Colors.black12,
-            onChanged: (val) => setState(() { height = val; _calculate(); }),
-          ),
-          if (expandSlider) const Spacer(),
-        ],
+          );
+        },
       ),
     );
   }
@@ -753,19 +913,24 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  Widget _buildRoundButton(IconData icon, VoidCallback onTap) {
+  Widget _buildRoundButton(
+    IconData icon,
+    VoidCallback onTap, {
+    double iconSize = 24,
+    EdgeInsets padding = const EdgeInsets.all(12),
+  }) {
     // Small circular +/- buttons keep the counter controls compact and easy to
     // tap while preserving the bold Brutalist visual style.
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: padding,
         decoration: BoxDecoration(
           color: Colors.black,
           shape: BoxShape.circle,
           border: Border.all(color: Colors.black, width: 2),
         ),
-        child: Icon(icon, color: Colors.white, size: 24),
+        child: Icon(icon, color: Colors.white, size: iconSize),
       ),
     );
   }

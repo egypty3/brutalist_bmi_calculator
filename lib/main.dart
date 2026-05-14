@@ -13,6 +13,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/splash_screen.dart';
 
 /// Entry point of the Brutalist BMI Calculator application.
@@ -42,6 +43,9 @@ void main() async {
             DeviceOrientation.landscapeRight,
           ],
   );
+
+  // Initialize AdMob before the widget tree starts requesting ads.
+  await MobileAds.instance.initialize();
 
   runApp(const BrutalBMICalculator());
 }
