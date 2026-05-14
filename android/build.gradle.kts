@@ -19,6 +19,14 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Suppress obsolete Java source/target value warnings from plugins (e.g. google_mobile_ads)
+// that still declare sourceCompatibility = JavaVersion.VERSION_1_8 internally.
+subprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        options.compilerArgs.add("-Xlint:-options")
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
