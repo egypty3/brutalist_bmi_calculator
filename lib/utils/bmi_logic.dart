@@ -34,13 +34,28 @@ class BMICalculator {
     return weightKg / (heightM * heightM);
   }
 
-  /// Estimates the healthy weight range for a given height.
-  /// 
-  /// The "Ideal Weight" is determined by calculating the weight at which
-  /// a person's BMI would be 18.5 (minimum healthy) and 25.0 (maximum healthy).
-  /// 
+  /// Returns the single ideal target weight for a given height.
+  ///
+  /// The target is calculated as the weight at which the person's BMI
+  /// equals **25.0** — the upper boundary of the "Normal" range and the
+  /// natural "goal" value most people aim for.
+  ///
+  /// Formula: `idealWeight (kg) = 25 × [height (m)]²`
+  ///
   /// * [heightCm]: The user's height in centimeters.
-  /// Returns a map with 'min' and 'max' weight values in kilograms.
+  /// Returns the ideal weight in kilograms.
+  static double getIdealWeight(double heightCm) {
+    double heightM = heightCm / 100;
+    return 25.0 * (heightM * heightM);
+  }
+
+  /// Estimates the full healthy weight range for a given height.
+  ///
+  /// Calculates the weight at which BMI = 18.5 (lower healthy boundary)
+  /// and BMI = 25.0 (upper healthy boundary / ideal target).
+  ///
+  /// * [heightCm]: The user's height in centimeters.
+  /// Returns a map with 'min' (BMI=18.5) and 'max' (BMI=25) values in kilograms.
   static Map<String, double> getIdealWeightRange(double heightCm) {
     double heightM = heightCm / 100;
     return {

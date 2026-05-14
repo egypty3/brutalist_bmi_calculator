@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:brutalist_bmi_calculator/main.dart';
 import 'package:brutalist_bmi_calculator/screens/calculator_screen.dart';
 
 void main() {
+  // Mock SharedPreferences so the tutorial is considered "already seen" in
+  // every test.  Without this, _checkAndShowTutorial() would push TutorialScreen
+  // on top of the calculator, causing all tests that inspect calculator UI to fail.
+  setUp(() {
+    SharedPreferences.setMockInitialValues({'has_seen_tutorial': true});
+  });
+
   testWidgets('app starts on the splash screen', (WidgetTester tester) async {
     await tester.pumpWidget(const BrutalBMICalculator());
 

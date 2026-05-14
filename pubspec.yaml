@@ -13,6 +13,7 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_animate: ^4.5.0
   google_mobile_ads: ^8.0.0
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
