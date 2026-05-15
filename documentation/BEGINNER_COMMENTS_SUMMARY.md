@@ -1,286 +1,286 @@
-# Brutalist BMI Calculator - Beginner Comments Summary
+# آلة حاسبة مؤشر كتلة الجسم بالطابع Brutalist - ملخص التعليقات للمبتدئين
 
-This document summarizes the comprehensive beginner-friendly comments that have been added to every .dart file in the project.
+يقدّم هذا المستند ملخصًا شاملًا للتعليقات المضافة بأسلوب مناسب للمبتدئين في كل ملف ‎.dart داخل المشروع.
 
-## 📚 Overview
+## 📚 نظرة عامة
 
-Every Dart file in the project now includes:
-- **File-level documentation** explaining the file's purpose
-- **Inline comments** explaining concepts, logic, and patterns that absolute beginners need to understand
-- **Code examples** showing how code works and how it's used
-- **Explanations of design patterns** (like State, StatelessWidget, etc.)
-
----
-
-## 📄 Files Enhanced
-
-### 1. **lib/main.dart** - Entry Point
-**What's Enhanced:**
-- Detailed explanation of how Flutter apps start (the `main()` function)
-- Comments on Flutter's binding system and platform initialization
-- Explanation of the widget tree hierarchy
-- Detailed comments about layout decisions for phones vs tablets
-- Theme configuration with "design tokens" concept
-
-**Key Concepts Explained:**
-- StatelessWidget vs StatefulWidget
-- Widget tree structure
-- Material Design theming
-- AdMob SDK initialization
-- SystemChrome for device orientation control
+كل ملف Dart في المشروع يتضمن الآن:
+- **توثيقًا على مستوى الملف** يشرح هدف الملف
+- **تعليقات داخلية** تشرح المفاهيم والمنطق والأنماط التي يحتاجها المبتدئ تمامًا
+- **أمثلة كود** توضّح طريقة عمل الكود وكيفية استخدامه
+- **شرحًا لأنماط التصميم** (مثل State و StatelessWidget وغيرها)
 
 ---
 
-### 2. **lib/screens/splash_screen.dart** - Splash Screen
-**What's Enhanced:**
-- Explanation of `initState()` lifecycle method
-- Details on detecting system language
-- Comments on `late` keyword and variable initialization
-- Explanation of `mounted` check (prevents errors on disposed widgets)
-- `pushReplacement` vs `push` navigation difference
-- `Future.delayed()` for timing animations
+## 📄 الملفات التي تم تحسينها
 
-**Key Concepts Explained:**
-- StatefulWidget lifecycle (initState, build, dispose)
-- Null coalescing operator (`??`)
-- Localization setup
-- Navigation stack management
-- Animation delays
+### 1. **lib/main.dart** - نقطة البداية
+**ما الذي تم تحسينه:**
+- شرح تفصيلي لكيفية بدء تطبيقات Flutter (دالة `main()`)
+- تعليقات على نظام الربط (binding) في Flutter وتهيئة المنصة
+- شرح لتسلسل شجرة الودجات (widget tree)
+- تعليقات تفصيلية حول قرارات التخطيط للهواتف مقابل الأجهزة اللوحية
+- إعداد الثيم باستخدام مفهوم "design tokens"
 
----
-
-### 3. **lib/screens/calculator_screen.dart** - Main Calculator
-**What's Enhanced:**
-- Comprehensive comments on state variables and their purposes
-- Detailed explanation of "derived results" vs "user inputs"
-- Comments on unit conversion (cm/inches, kg/pounds)
-- Explanation of the `_calculate()` method and setState()
-- Comments on adaptive layout (phone vs tablet)
-- Detailed explanation of the `_buildRoundButton()` factory method
-
-**Key Concepts Explained:**
-- State management and setState()
-- Derived vs input state
-- Unit conversion patterns
-- Responsive design (LayoutBuilder, flex)
-- Factory methods for reusable widgets
-- Custom callback patterns
+**المفاهيم الأساسية المشروحة:**
+- الفرق بين StatelessWidget و StatefulWidget
+- بنية شجرة الودجات
+- تنسيق Material Design
+- تهيئة AdMob SDK
+- استخدام SystemChrome للتحكم في اتجاه الجهاز
 
 ---
 
-### 4. **lib/screens/tutorial_screen.dart** - Tutorial Walkthrough
-**What's Enhanced:**
-- Explanation of the `_TutorialPage` data class (grouping related data)
-- Comments on `PageController` and manual page navigation
-- Explanation of state tracking (`_currentPage`)
-- Details on animating containers and progressive disclosure
-- Comments on dot progress indicators
+### 2. **lib/screens/splash_screen.dart** - شاشة البداية
+**ما الذي تم تحسينه:**
+- شرح دالة دورة الحياة `initState()`
+- تفاصيل حول اكتشاف لغة النظام
+- تعليقات على الكلمة المفتاحية `late` وتهيئة المتغيرات
+- شرح فحص `mounted` (لمنع الأخطاء عند التخلص من الودجت)
+- الفرق بين التنقل باستخدام `pushReplacement` و `push`
+- استخدام `Future.delayed()` لتوقيت الحركات
 
-**Key Concepts Explained:**
-- Custom data structures for organization
-- PageView and PageController
-- Animation with `AnimatedContainer`
-- Progress indicators
-- State management for multi-step processes
-
----
-
-### 5. **lib/screens/diseases_screen.dart** - Health Risks Reference
-**What's Enhanced:**
-- Detailed explanation of the `_CategoryMeta` data structure
-- Comments on GlobalKey usage for scroll positioning
-- Explanation of `Scrollable.ensureVisible()` for auto-scrolling
-- Comments on category highlighting logic
-- Explanation of staggered animations
-
-**Key Concepts Explained:**
-- Custom data structures (metadata)
-- GlobalKey for finding and controlling widgets
-- Scroll positioning algorithms
-- Conditional rendering (if/else in UI)
-- Staggered animations
+**المفاهيم الأساسية المشروحة:**
+- دورة حياة StatefulWidget (initState, build, dispose)
+- معامل الدمج مع القيمة الافتراضية (`??`)
+- إعداد الترجمة/التعريب (localization)
+- إدارة مكدس التنقل
+- تأخيرات الحركة (Animation delays)
 
 ---
 
-### 6. **lib/widgets/brutalist_widgets.dart** - Reusable Widgets
-**What's Enhanced:**
-- **Extensive explanation of Neo-Brutalism design philosophy**
-- Detailed breakdown of `BrutalistContainer` shadow technique
-- Comments on Stack layering for the shadow effect
-- Explanation of shape.circle for round buttons
-- Smart text color logic explanation
-- Detailed parameter documentation
+### 3. **lib/screens/calculator_screen.dart** - الشاشة الرئيسية للحاسبة
+**ما الذي تم تحسينه:**
+- تعليقات شاملة على متغيرات الحالة ووظيفة كل متغير
+- شرح تفصيلي لفرق "النتائج المشتقة" مقابل "مدخلات المستخدم"
+- تعليقات على تحويل الوحدات (سم/إنش، كجم/باوند)
+- شرح دالة `_calculate()` واستخدام setState()
+- تعليقات على التخطيط المتكيف (هاتف مقابل جهاز لوحي)
+- شرح مفصل لدالة المصنع `_buildRoundButton()`
 
-**Key Concepts Explained:**
-- Design systems and reusable components
-- Neo-Brutalism aesthetic principles
-- Stack for layering widgets
-- Shadow techniques without Material shadows
-- Accessible text color contrast
-- Border and decoration patterns
-
----
-
-### 7. **lib/utils/bmi_logic.dart** - BMI Calculations
-**What's Enhanced:**
-- Detailed explanation of the BMI formula with example
-- Comments on input validation
-- Detailed explanation of height conversion (cm to meters)
-- Comments on the classification ranges
-- Detailed explanation of body fat percentage formula
-- Comprehensive documentation of the `BMIResult` data class
-
-**Key Concepts Explained:**
-- Mathematical formulas and their implementation
-- Input validation patterns
-- Unit conversion logic
-- Classification logic (if/else ranges)
-- Static utility classes
-- Data Transfer Objects (DTOs)
+**المفاهيم الأساسية المشروحة:**
+- إدارة الحالة و setState()
+- الحالة المشتقة مقابل حالة الإدخال
+- أنماط تحويل الوحدات
+- التصميم المتجاوب (LayoutBuilder, flex)
+- دوال المصنع للودجات القابلة لإعادة الاستخدام
+- أنماط callback المخصصة
 
 ---
 
-### 8. **lib/utils/disease_data.dart** - Health Risk Database
-**What's Enhanced:**
-- Detailed explanation of the nested Map data structure
-- Comments on language fallback logic
-- Explanation of static methods vs instance methods
-- Example usage of `getRisks()` method
-- Detailed algorithm breakdown
+### 4. **lib/screens/tutorial_screen.dart** - شاشة الشرح التفاعلي
+**ما الذي تم تحسينه:**
+- شرح كلاس البيانات `_TutorialPage` (لتجميع البيانات المرتبطة)
+- تعليقات على `PageController` والتنقل اليدوي بين الصفحات
+- شرح تتبّع الحالة (`_currentPage`)
+- تفاصيل حول تحريك الحاويات والإفصاح التدريجي للمحتوى
+- تعليقات على مؤشرات التقدم بالنقاط
 
-**Key Concepts Explained:**
-- Nested data structures (Maps)
-- Language fallback patterns
-- Static utility classes
-- Data lookup algorithms
-- Internationalization (i18n) patterns
-
----
-
-### 9. **lib/utils/localization.dart** - Multi-Language Support
-**What's Enhanced:**
-- Comprehensive explanation of what "localization" means
-- Detailed usage examples with code
-- Comments on BCP-47 language codes
-- Explanation of RTL (Right-to-Left) vs LTR
-- Detailed algorithm for the `translate()` method
-- Comments on fallback chains
-
-**Key Concepts Explained:**
-- Internationalization (i18n) and localization (l10n)
-- Language code standards (BCP-47)
-- RTL/LTR text direction
-- Safe fallback patterns
-- Dictionary/lookup patterns
+**المفاهيم الأساسية المشروحة:**
+- هياكل بيانات مخصصة لتنظيم المعلومات
+- PageView و PageController
+- التحريك باستخدام `AnimatedContainer`
+- مؤشرات التقدم
+- إدارة الحالة للعمليات متعددة الخطوات
 
 ---
 
-## 🎓 Learning Path for Beginners
+### 5. **lib/screens/diseases_screen.dart** - مرجع المخاطر الصحية
+**ما الذي تم تحسينه:**
+- شرح تفصيلي لبنية البيانات `_CategoryMeta`
+- تعليقات على استخدام GlobalKey لتحديد مواضع التمرير
+- شرح `Scrollable.ensureVisible()` للتمرير التلقائي
+- تعليقات على منطق إبراز الفئة الحالية
+- شرح الحركات المتدرجة (staggered animations)
 
-If you're an absolute beginner, read files in this order:
-
-1. **main.dart** - Understand how Flutter apps start
-2. **brutalist_widgets.dart** - Learn about building reusable UI components
-3. **bmi_logic.dart** - See pure logic without UI (easier to understand)
-4. **calculator_screen.dart** - Learn about state management and UI logic
-5. **splash_screen.dart** - Understand widget lifecycle and navigation
-6. **localization.dart** - See how to structure data and handle variations
-7. **tutorial_screen.dart** - Learn about complex state and animations
-8. **diseases_screen.dart** - Understand advanced patterns (GlobalKey, scrolling)
-9. **disease_data.dart** - See how to structure large datasets
-
----
-
-## 💡 Key Concepts Explained Throughout
-
-### Object-Oriented Programming
-- Classes and instances
-- Static methods and variables
-- Private constructors
-- Inheritance and composition
-
-### Flutter-Specific Patterns
-- StatelessWidget vs StatefulWidget
-- Widget tree and rendering
-- setState() and state management
-- Build context and navigation
-- Lifecycle methods (initState, dispose, build)
-
-### Data Structures
-- Maps, Lists, and nested collections
-- Custom data classes (models)
-- Data Transfer Objects (DTOs)
-
-### UI Patterns
-- Widget composition and reusability
-- Adaptive layouts (responsive design)
-- Animation and transitions
-- Color and contrast accessibility
-
-### Common Tasks
-- Unit conversion
-- Language localization
-- Mathematical calculations
-- Scroll positioning
-- Progress tracking
+**المفاهيم الأساسية المشروحة:**
+- هياكل بيانات مخصصة (metadata)
+- استخدام GlobalKey للعثور على الودجات والتحكم بها
+- خوارزميات تحديد موضع التمرير
+- العرض الشرطي (if/else في الواجهة)
+- الحركات المتدرجة
 
 ---
 
-## 🔍 Comment Levels
+### 6. **lib/widgets/brutalist_widgets.dart** - ودجات قابلة لإعادة الاستخدام
+**ما الذي تم تحسينه:**
+- **شرح موسّع لفلسفة تصميم Neo-Brutalism**
+- تفصيل تقنية الظلال في `BrutalistContainer`
+- تعليقات على استخدام Stack لتكديس الطبقات وصنع تأثير الظل
+- شرح `shape.circle` للأزرار الدائرية
+- شرح منطق اختيار لون النص بشكل ذكي
+- توثيق تفصيلي للمعاملات
 
-Comments are written at three levels:
-
-1. **High-level** - What the file/class/method does overall
-2. **Mid-level** - How a function works, what parameters mean
-3. **Low-level** - Why a specific line does what it does
-
-This multi-level approach helps readers at all skill levels:
-- Beginners can read the high-level comments to understand the big picture
-- Intermediate learners can follow the mid-level comments to trace flow
-- Advanced learners can dig into the details to understand the implementation
-
----
-
-## ✅ Completeness Check
-
-Every .dart file includes:
-- ✅ File header comment explaining purpose
-- ✅ Import comments explaining what each package does
-- ✅ Class-level documentation
-- ✅ Method/function documentation
-- ✅ Parameter explanations
-- ✅ Return value documentation
-- ✅ Usage examples where applicable
-- ✅ Inline comments for non-obvious logic
-- ✅ Design pattern explanations
+**المفاهيم الأساسية المشروحة:**
+- أنظمة التصميم والمكونات القابلة لإعادة الاستخدام
+- مبادئ الجماليات في Neo-Brutalism
+- استخدام Stack لتراكب الودجات
+- تقنيات الظلال بدون ظلال Material الجاهزة
+- تباين ألوان النص لسهولة القراءة
+- أنماط الحدود والزخرفة
 
 ---
 
-## 🚀 Using These Comments
+### 7. **lib/utils/bmi_logic.dart** - حسابات مؤشر كتلة الجسم
+**ما الذي تم تحسينه:**
+- شرح تفصيلي لمعادلة BMI مع مثال
+- تعليقات على التحقق من صحة المدخلات
+- شرح مفصل لتحويل الطول (سم إلى متر)
+- تعليقات على نطاقات التصنيف
+- شرح تفصيلي لمعادلة نسبة دهون الجسم
+- توثيق شامل لكلاس البيانات `BMIResult`
 
-To make the best use of these comments:
-
-1. **Open any .dart file** and read the comments alongside the code
-2. **Find concepts you don't understand** and search for related comments
-3. **Use the "Learning Path"** above to build knowledge progressively
-4. **Experiment** - Modify code and use comments to predict what will change
-5. **Ask questions** - If comments don't explain something, that's a note for improvement!
-
----
-
-## 📝 Notes for Contributors
-
-When adding new code:
-- Add file-level comments explaining purpose
-- Comment the "why," not just the "what"
-- Explain design patterns you use
-- Provide examples for complex logic
-- Keep comments beginner-friendly
-- Update this document if you add significant new concepts
+**المفاهيم الأساسية المشروحة:**
+- المعادلات الرياضية وتطبيقها برمجيًا
+- أنماط التحقق من صحة المدخلات
+- منطق تحويل الوحدات
+- منطق التصنيف (نطاقات if/else)
+- كلاسات الأدوات الثابتة (Static utility classes)
+- كائنات نقل البيانات (DTOs)
 
 ---
 
-**Happy Learning! 🎉**
+### 8. **lib/utils/disease_data.dart** - قاعدة بيانات المخاطر الصحية
+**ما الذي تم تحسينه:**
+- شرح تفصيلي لبنية Map المتداخلة
+- تعليقات على منطق الرجوع إلى اللغة البديلة (fallback)
+- شرح الفرق بين الدوال الثابتة ودوال النسخة (instance)
+- مثال استخدام لدالة `getRisks()`
+- تفصيل الخوارزمية خطوة بخطوة
 
-This codebase is now fully documented for absolute beginners. Every class, method, and significant line of code has an explanation to help you understand how it works and why it's structured this way.
+**المفاهيم الأساسية المشروحة:**
+- هياكل البيانات المتداخلة (Maps)
+- أنماط fallback للغة
+- كلاسات الأدوات الثابتة
+- خوارزميات البحث عن البيانات
+- أنماط التدويل (i18n)
+
+---
+
+### 9. **lib/utils/localization.dart** - دعم تعدد اللغات
+**ما الذي تم تحسينه:**
+- شرح شامل لمعنى "localization"
+- أمثلة استخدام تفصيلية مع الكود
+- تعليقات على رموز اللغة وفق معيار BCP-47
+- شرح الفرق بين RTL (من اليمين إلى اليسار) و LTR
+- شرح تفصيلي لخوارزمية دالة `translate()`
+- تعليقات على سلاسل fallback
+
+**المفاهيم الأساسية المشروحة:**
+- التدويل (i18n) والتعريب/الترجمة المحلية (l10n)
+- معايير رموز اللغة (BCP-47)
+- اتجاه النص RTL/LTR
+- أنماط fallback الآمنة
+- أنماط القاموس/البحث (lookup)
+
+---
+
+## 🎓 مسار التعلم للمبتدئين
+
+إذا كنت مبتدئًا تمامًا، اقرأ الملفات بهذا الترتيب:
+
+1. **main.dart** - افهم كيف تبدأ تطبيقات Flutter
+2. **brutalist_widgets.dart** - تعلّم بناء مكونات واجهة قابلة لإعادة الاستخدام
+3. **bmi_logic.dart** - شاهد منطقًا خالصًا بدون واجهة (أسهل للفهم)
+4. **calculator_screen.dart** - تعلّم إدارة الحالة ومنطق الواجهة
+5. **splash_screen.dart** - افهم دورة حياة الودجات والتنقل
+6. **localization.dart** - تعلّم كيفية تنظيم البيانات والتعامل مع الاختلافات
+7. **tutorial_screen.dart** - تعلّم الحالة المعقّدة والحركات
+8. **diseases_screen.dart** - افهم الأنماط المتقدمة (GlobalKey والتمرير)
+9. **disease_data.dart** - شاهد كيفية تنظيم مجموعات بيانات كبيرة
+
+---
+
+## 💡 المفاهيم الأساسية المشروحة عبر المشروع
+
+### البرمجة كائنية التوجه
+- الكلاسات والكائنات
+- الدوال والمتغيرات الثابتة
+- المُنشئات الخاصة
+- الوراثة والتركيب
+
+### أنماط خاصة بـ Flutter
+- StatelessWidget مقابل StatefulWidget
+- شجرة الودجات وآلية الرسم
+- setState() وإدارة الحالة
+- BuildContext والتنقل
+- دوال دورة الحياة (initState, dispose, build)
+
+### هياكل البيانات
+- Maps و Lists والمجموعات المتداخلة
+- كلاسات بيانات مخصصة (models)
+- كائنات نقل البيانات (DTOs)
+
+### أنماط واجهات المستخدم
+- تركيب الودجات وقابلية إعادة الاستخدام
+- التخطيطات المتكيفة (تصميم متجاوب)
+- الحركات والانتقالات
+- سهولة الوصول من ناحية الألوان والتباين
+
+### مهام شائعة
+- تحويل الوحدات
+- الترجمة/التعريب
+- الحسابات الرياضية
+- تحديد موضع التمرير
+- تتبع التقدم
+
+---
+
+## 🔍 مستويات التعليق
+
+تمت كتابة التعليقات على ثلاثة مستويات:
+
+1. **مستوى عالٍ** - ما الذي يفعله الملف/الكلاس/الدالة بشكل عام
+2. **مستوى متوسط** - كيف تعمل الدالة وما معنى المعاملات
+3. **مستوى منخفض** - لماذا ينفّذ سطر معيّن هذا السلوك
+
+هذا الأسلوب متعدد المستويات يساعد جميع المستويات:
+- المبتدئون يفهمون الصورة الكبيرة من التعليقات عالية المستوى
+- المتعلمون بالمستوى المتوسط يتتبعون التدفق عبر تعليقات المستوى المتوسط
+- المتقدمون يغوصون في التفاصيل لفهم التنفيذ بدقة
+
+---
+
+## ✅ فحص الاكتمال
+
+كل ملف ‎.dart يتضمن:
+- ✅ تعليق رأس الملف لشرح الهدف
+- ✅ تعليقات الاستيراد لشرح وظيفة كل حزمة
+- ✅ توثيق على مستوى الكلاس
+- ✅ توثيق للدوال/الوظائف
+- ✅ شرح المعاملات
+- ✅ توثيق القيم المعادة
+- ✅ أمثلة استخدام عند الحاجة
+- ✅ تعليقات داخلية للمنطق غير الواضح مباشرة
+- ✅ شرح أنماط التصميم
+
+---
+
+## 🚀 كيفية الاستفادة من هذه التعليقات
+
+لأفضل استفادة من التعليقات:
+
+1. **افتح أي ملف ‎.dart** واقرأ التعليقات بجانب الكود
+2. **حدّد المفاهيم غير الواضحة** وابحث عن التعليقات المرتبطة بها
+3. **استخدم "مسار التعلم"** بالأعلى لبناء المعرفة تدريجيًا
+4. **جرّب عمليًا** - عدّل الكود واستخدم التعليقات لتوقّع ما سيتغير
+5. **اطرح أسئلة** - إذا لم تشرح التعليقات نقطة معيّنة، فهذه ملاحظة مهمة للتحسين
+
+---
+
+## 📝 ملاحظات للمساهمين
+
+عند إضافة كود جديد:
+- أضف تعليقات على مستوى الملف تشرح الهدف
+- علّق على "لماذا" وليس فقط "ماذا"
+- اشرح أنماط التصميم التي تستخدمها
+- قدّم أمثلة للمنطق المعقّد
+- حافظ على أسلوب مناسب للمبتدئين
+- حدّث هذا المستند إذا أضفت مفاهيم جديدة مهمة
+
+---
+
+**تعلّم ممتع! 🎉**
+
+قاعدة الكود هذه موثقة الآن بالكامل للمبتدئين تمامًا. كل كلاس ودالة وكل سطر مهم من الكود لديه شرح يساعدك على فهم طريقة عمله ولماذا تم تنظيمه بهذا الشكل.
 
