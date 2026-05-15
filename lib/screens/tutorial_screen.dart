@@ -20,21 +20,37 @@ import '../widgets/brutalist_widgets.dart';
 // ── Internal data model ───────────────────────────────────────────────────
 // This private class stores everything needed to render one tutorial page.
 // It is 'const' which makes it very efficient — Flutter won't rebuild it.
+//
+// Why a custom class? Because defining pages as plain data (not Widgets)
+// keeps the code clean and makes it easy to add/remove pages.
 class _TutorialPage {
-  /// The icon displayed in the large brutalist box.
+  /// The icon displayed in the large brutalist box at the top of the page.
+  /// Example: Icons.monitor_weight_outlined, Icons.people_alt_outlined, Icons.height
   final IconData icon;
 
   /// Background color of the page scaffold (alternates for visual interest).
+  /// This is the big background color that fills the screen behind all content.
   final Color bgColor;
 
   /// Background color of the icon container (contrasts with [bgColor]).
+  /// So if bgColor is yellow, iconBgColor is typically white or cyan for contrast.
   final Color iconBgColor;
 
   /// Localization key for the bold page title (looked up in AppLocalization).
+  /// Example: 'tut1_title' → translates to 'Welcome!', '!مرحباً', 'Bienvenue !', etc.
   final String titleKey;
 
   /// Localization key for the description paragraph.
+  /// Example: 'tut1_desc' → long sentence explaining the feature in the user's language.
   final String descKey;
+
+  /// Accent icon shown above the tutorial message card (decorative).
+  /// Example: Icons.waving_hand_rounded, Icons.people_alt_rounded, Icons.language_rounded
+  final IconData messageIcon;
+
+  /// Accent color used for the message icon/badge (the small circle above text).
+  /// Helps make the message card stand out visually.
+  final Color messageAccentColor;
 
   const _TutorialPage({
     required this.icon,
@@ -42,6 +58,8 @@ class _TutorialPage {
     required this.iconBgColor,
     required this.titleKey,
     required this.descKey,
+    required this.messageIcon,
+    required this.messageAccentColor,
   });
 }
 
@@ -65,11 +83,14 @@ class TutorialScreen extends StatefulWidget {
 class _TutorialScreenState extends State<TutorialScreen> {
   // PageController manages the swipeable PageView.
   // We hold a reference so we can programmatically jump to the next page when
-  // the "Next" button is tapped.
+  // the "Next" button is tapped, or skip to a specific page.
+  // (Without storing it, we'd have to rely only on user swipes.)
   final PageController _pageController = PageController();
 
   // Tracks which page (0-based index) is currently visible.
+  // When the user swipes or taps "Next", this number updates.
   // State updates trigger a setState() so the dots and button label re-render.
+  // Pages are numbered: 0 (Welcome), 1 (Gender), 2 (Age & Weight), ..., 6 (Settings)
   int _currentPage = 0;
 
   // ── Tutorial page definitions ────────────────────────────────────────────
@@ -83,6 +104,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Colors.white,
       titleKey: 'tut1_title',
       descKey: 'tut1_desc',
+      messageIcon: Icons.waving_hand_rounded,
+      messageAccentColor: Color(0xFF5CE1E6),
     ),
     // Page 2 — Gender selection
     _TutorialPage(
@@ -91,6 +114,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Color(0xFF5CE1E6), // Brand cyan
       titleKey: 'tut2_title',
       descKey: 'tut2_desc',
+      messageIcon: Icons.people_alt_rounded,
+      messageAccentColor: Color(0xFFFFDE59),
     ),
     // Page 3 — Age & Weight
     _TutorialPage(
@@ -99,6 +124,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Colors.white,
       titleKey: 'tut3_title',
       descKey: 'tut3_desc',
+      messageIcon: Icons.balance_rounded,
+      messageAccentColor: Color(0xFF5CE1E6),
     ),
     // Page 4 — Height
     _TutorialPage(
@@ -107,6 +134,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Colors.white,
       titleKey: 'tut4_title',
       descKey: 'tut4_desc',
+      messageIcon: Icons.straighten_rounded,
+      messageAccentColor: Color(0xFFFFDE59),
     ),
     // Page 5 — Results card
     _TutorialPage(
@@ -115,6 +144,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Color(0xFFFFDE59),
       titleKey: 'tut5_title',
       descKey: 'tut5_desc',
+      messageIcon: Icons.insights_rounded,
+      messageAccentColor: Color(0xFF5CE1E6),
     ),
     // Page 6 — Classification table
     _TutorialPage(
@@ -123,6 +154,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Color(0xFF5CE1E6),
       titleKey: 'tut6_title',
       descKey: 'tut6_desc',
+      messageIcon: Icons.touch_app_rounded,
+      messageAccentColor: Colors.white,
     ),
     // Page 7 — Settings & language
     _TutorialPage(
@@ -131,6 +164,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       iconBgColor: Colors.white,
       titleKey: 'tut7_title',
       descKey: 'tut7_desc',
+      messageIcon: Icons.language_rounded,
+      messageAccentColor: Color(0xFFFFDE59),
     ),
   ];
 
@@ -190,9 +225,9 @@ class _TutorialScreenState extends State<TutorialScreen> {
                       child: Text(
                         loc.translate('tut_skip'),
                         style: const TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -209,8 +244,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                         '${_currentPage + 1} / ${_pages.length}',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -245,8 +280,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: i == _currentPage ? 28 : 8,
-                          height: 8,
+                          width: i == _currentPage ? 34 : 10,
+                          height: 10,
                           decoration: BoxDecoration(
                             color: i == _currentPage
                                 ? Colors.black
@@ -287,7 +322,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
   /// 3. Descriptive text paragraph.
   Widget _buildPageContent(_TutorialPage page, AppLocalization loc) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -296,8 +331,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
           // flutter_animate adds the elastic scale-in and shimmer on first render.
           BrutalistContainer(
             backgroundColor: page.iconBgColor,
-            padding: const EdgeInsets.all(24),
-            child: Icon(page.icon, size: 80, color: Colors.black),
+            padding: const EdgeInsets.all(28),
+            child: Icon(page.icon, size: 92, color: Colors.black),
           )
               .animate()
               .scale(
@@ -306,7 +341,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
               )
               .shimmer(delay: 700.ms, duration: 1000.ms),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 36),
 
           // ── TITLE ──────────────────────────────────────────────────
           // The title sits on a colored pill/strip so it always stands out,
@@ -323,8 +358,9 @@ class _TutorialScreenState extends State<TutorialScreen> {
               loc.translate(page.titleKey),
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 26,
+                fontSize: 30,
                 fontWeight: FontWeight.w900,
+                letterSpacing: 0.4,
                 color: Colors.black,
               ),
             ),
@@ -333,20 +369,41 @@ class _TutorialScreenState extends State<TutorialScreen> {
               .fadeIn(delay: 200.ms)
               .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // ── DESCRIPTION ────────────────────────────────────────────
           // Slightly muted color (black87) keeps focus on the title without
           // losing legibility. Line height 1.5 improves readability on mobile.
-          Text(
-            loc.translate(page.descKey),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.black87,
-              height: 1.6,
+          BrutalistContainer(
+            backgroundColor: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: page.messageAccentColor,
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(page.messageIcon, color: Colors.black, size: 24),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  loc.translate(page.descKey),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                    height: 1.65,
+                  ),
+                ),
+              ],
             ),
-          ).animate().fadeIn(delay: 400.ms),
+          ).animate().fadeIn(delay: 350.ms).slideY(begin: 0.12, end: 0),
         ],
       ),
     );

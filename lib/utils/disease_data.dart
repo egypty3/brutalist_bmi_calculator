@@ -12,11 +12,40 @@
 
 /// Provides translated lists of health risks for each non-normal BMI category.
 ///
+/// **What this does:**
 /// This is a pure data class — it has no constructor, no state, and no UI code.
-/// It is used exclusively by [DiseasesScreen] to populate the risk bullet points.
+/// It is used exclusively by [DiseasesScreen] to populate the risk bullet points
+/// that users see when they tap a category.
+///
+/// **Data structure:**
+/// ```
+/// DiseaseData._risks = {
+///   'cat_vsu': {  // Very Severely Underweight category
+///     'en': ['Organ failure due to...', 'Severe malnutrition...', ...],
+///     'ar': ['فشل الأعضاء...', 'سوء التغذية...', ...],
+///     'fr': ['Défaillance organique...', 'Malnutrition s��vère...', ...],
+///     'de': ['Organversagen...', 'Schwere Mangelernährung...', ...],
+///   },
+///   'cat_su': { ... },
+///   ...
+/// }
+/// ```
+///
+/// **How to use:**
+/// ```dart
+/// List<String> risks = DiseaseData.getRisks('cat_o', 'fr');
+/// // → French risks for Overweight category
+/// // → ['Risque accru de diabète de type 2', 'Hypertension artérielle', ...]
+/// ```
+///
+/// **Language fallback:**
+/// If a language code has no data for a category, the method falls back to English.
+/// This ensures we never return null or crash — the UI just shows English text instead.
+///
+/// **Note:** The 'cat_n' (Normal) category has no entry because healthy people have no risks!
 class DiseaseData {
   // Private constructor prevents anyone from creating an instance of this class.
-  // All data is accessed through the static [getRisks] method.
+  // All data is accessed through the static [getRisks] method below.
   DiseaseData._();
 
   // ── Internal data store ───────────────────────────────────────────────────
@@ -274,13 +303,35 @@ class DiseaseData {
 
   /// Returns the list of health risk strings for [categoryKey] in [languageCode].
   ///
-  /// Falls back to English if the requested language has no data for the category.
-  /// Returns an empty list for the normal category ('cat_n') since it has no risks.
+  /// **Algorithm:**
+  /// 1. Look up the category in `_risks` (e.g., 'cat_o1')
+  /// 2. If the category doesn't exist, return an empty list (e.g., 'cat_n' — no risks)
+  /// 3. If the category exists, look for the language (e.g., 'fr' for French)
+  /// 4. If the language has no data, fall back to English ('en')
+  /// 5. Return the list of risk strings, or an empty list if nothing is found
   ///
-  /// Example: `DiseaseData.getRisks('cat_o', 'fr')` → French overweight risks.
+  /// **Returns:**
+  /// A list of translated health risk descriptions, or an empty list if:
+  ///   - The category doesn't exist (category known to have no risks)
+  ///   - Neither the requested language nor English have data (shouldn't happen)
+  ///
+  /// **Examples:**
+  /// ```dart
+  /// DiseaseData.getRisks('cat_o', 'fr')
+  /// // → ['Risque accru de diabète de type 2', 'Hypertension artérielle', ...]
+  ///
+  /// DiseaseData.getRisks('cat_n', 'en')
+  /// // → [] (empty list — normal category has no risks)
+  ///
+  /// DiseaseData.getRisks('cat_o1', 'xx')  // 'xx' not supported
+  /// // → English version is used as fallback
+  /// ```
   static List<String> getRisks(String categoryKey, String languageCode) {
+    // Try to find this category in our data
     final categoryData = _risks[categoryKey];
-    if (categoryData == null) return []; // Normal category or unknown key
+    if (categoryData == null) return []; // No data for this category (e.g., 'cat_n')
+
+    // Try to find the language, or fall back to English
     return categoryData[languageCode] ?? categoryData['en'] ?? [];
   }
 }

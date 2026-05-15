@@ -21,14 +21,25 @@
 
 /// A simple localization utility for the Brutalist BMI Calculator.
 ///
-/// Usage:
+/// "Localization" (often abbreviated "i18n") means supporting multiple languages
+/// and regional settings. This class lets the app display text in English, Arabic,
+/// French, or German.
+///
+/// Usage example:
 /// ```dart
-/// final loc = AppLocalization('fr');
-/// loc.translate('title');  // → 'CALCULATEUR IMC'
-/// loc.isRtl;               // → false
+/// final loc = AppLocalization('fr');          // Create with French
+/// loc.translate('title');                     // → 'CALCULATEUR IMC' (French for "BMI CALCULATOR")
+/// loc.translate('age');                       // → 'ÂGE' (French for "AGE")
+/// loc.isRtl;                                  // → false (French is left-to-right)
+///
+/// final locAr = AppLocalization('ar');        // Create with Arabic
+/// locAr.translate('title');                   // → 'حاسبة مؤشر الكتلة' (Arabic for "BMI CALCULATOR")
+/// locAr.isRtl;                                // → true (Arabic is right-to-left)
 /// ```
 class AppLocalization {
-  /// The active BCP-47 language code ('en', 'ar', 'fr', 'de').
+  /// The active BCP-47 language code.
+  /// Valid values: 'en' (English), 'ar' (Arabic), 'fr' (French), 'de' (German).
+  /// See `languages` constant for a complete list.
   final String languageCode;
 
   AppLocalization(this.languageCode);
@@ -57,6 +68,7 @@ class AppLocalization {
       'weight_unit':     'WEIGHT UNIT',
       'height_unit':     'HEIGHT UNIT',
       'select_language': 'SELECT LANGUAGE',
+      'splash_tagline':  'STAY FIT OR DIE TRYING',
 
       // ── BMI Categories ───────────────────────────────────────────────────
       'cat_vsu': 'Very Severely Underweight',
@@ -128,6 +140,7 @@ class AppLocalization {
       'weight_unit':     'وحدة الوزن',
       'height_unit':     'وحدة الطول',
       'select_language': 'اختر اللغة',
+      'splash_tagline':  'حافظ على لياقتك أو واصل المحاولة',
 
       // ── BMI Categories ───────────────────────────────────────────────────
       'cat_vsu': 'نقص حاد جداً في الوزن',
@@ -199,6 +212,7 @@ class AppLocalization {
       'weight_unit':     'UNITÉ DE POIDS',
       'height_unit':     'UNITÉ DE TAILLE',
       'select_language': 'CHOISIR LA LANGUE',
+      'splash_tagline':  'RESTEZ EN FORME, COÛTE QUE COÛTE',
 
       // ── BMI Categories ───────────────────────────────────────────────────
       'cat_vsu': 'Insuffisance pondérale très sévère',
@@ -270,6 +284,7 @@ class AppLocalization {
       'weight_unit':     'GEWICHTSEINHEIT',
       'height_unit':     'GRÖSSENEINHEIT',
       'select_language': 'SPRACHE WÄHLEN',
+      'splash_tagline':  'BLEIB FIT - EGAL WAS KOMMT',
 
       // ── BMI Categories ───────────────────────────────────────────────────
       'cat_vsu': 'Sehr starkes Untergewicht',
@@ -327,17 +342,33 @@ class AppLocalization {
 
   /// Looks up [key] in the active language's dictionary.
   ///
-  /// Falls back to English if either the language or the key is missing,
-  /// which prevents a blank UI during development.
+  /// The dictionary is a huge nested Map: { 'en': { 'title': 'BMI CALCULATOR', ... }, ... }
+  /// This method performs a safe lookup that gracefully handles missing languages or keys:
+  /// * First tries: _localizedValues[languageCode]?[key]
+  /// * Then falls back to: _localizedValues['en']![key] (English default)
+  /// * Last resort: returns the raw [key] string (ugly but safe for debugging)
+  ///
+  /// Example:
+  ///   translate('title')  // Looks up the word "title" in the current language
+  ///   translate('age')    // Looks up the word "age" in the current language
+  ///   translate('invalid_key') // Returns 'invalid_key' if not found (safe fallback)
   String translate(String key) {
     return _localizedValues[languageCode]?[key]
         ?? _localizedValues['en']![key]
         ?? key; // Last resort: return the raw key instead of crashing.
   }
 
-  /// Returns `true` if the current language is a Right-to-Left script.
+  /// Returns `true` if the current language uses Right-to-Left text direction.
   ///
-  /// Used by the [Directionality] widget to mirror the layout for Arabic.
+  /// Arabic (ar) is the only currently supported RTL language.
+  /// This is used by the [Directionality] widget to flip the entire UI layout:
+  /// * Text flows right-to-left instead of left-to-right
+  /// * Everything horizontally mirrors (buttons on right instead of left, etc.)
+  ///
+  /// Example:
+  ///   if (loc.isRtl) {
+  ///     // Apply RTL-specific styling
+  ///   }
   bool get isRtl => languageCode == 'ar';
 
   /// All language codes the app currently supports, mapped to their native

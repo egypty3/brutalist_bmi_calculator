@@ -65,21 +65,27 @@ class CalculatorScreen extends StatefulWidget {
 class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // ── USER INPUT STATE ─────────────────────────────────────────────────────────
-  int    age    = 25;
-  double height = 170.0;  // Always stored in centimetres internally
-  double weight = 70.0;   // Always stored in kilograms internally
-  bool   isMale = true;
-  bool   isCm   = true;
-  bool   isKg   = true;
+  // These variables store what the user enters into the calculator.
+  // Whenever ANY of these change, we call setState() to rebuild the widgets
+  // and show the new results. Think of them as the "model" or "data" of the app.
+  int    age    = 25;           // Age in years
+  double height = 170.0;        // Always stored in centimetres internally (100-220cm)
+  double weight = 70.0;         // Always stored in kilograms internally
+  bool   isMale = true;         // Gender (affects fat% calculation and display)
+  bool   isCm   = true;         // Display unit: true = cm, false = feet+inches
+  bool   isKg   = true;         // Display unit: true = kg, false = pounds
 
   // ── LOCALIZATION ─────────────────────────────────────────────────────────────
-  late String _currentLang;
-  late AppLocalization _loc;
+  // These help translate the UI text to the user's chosen language.
+  late String _currentLang;     // Current language code ('en', 'ar', 'fr', 'de')
+  late AppLocalization _loc;    // Helper object to translate string keys into text
 
   // ── DERIVED RESULTS ───────────────────────────────────────────────────────────
-  double bmi                 = 0;
-  String classificationKey   = 'cat_n';
-  Color  classificationColor = Colors.black;
+  // These are NOT user inputs — they're calculated from the data above.
+  // Every time weight/height/age changes, we recalculate these and rebuild the UI.
+  double bmi                 = 0;       // The computed BMI value (weight / height²)
+  String classificationKey   = 'cat_n'; // Which category: 'cat_n' (normal), 'cat_o' (overweight), etc.
+  Color  classificationColor = Colors.black; // Color associated with the classification
 
   // ── UNIT CONVERSION CONSTANTS ─────────────────────────────────────────────────
   static const double cmPerInch = 2.54;
@@ -103,6 +109,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // ── SHARED PREFERENCES KEY ───────────────────────────────────────────────────
   static const String _prefKeyTutorial = 'has_seen_tutorial';
+  static const String _prefKeyLanguage = 'selected_language_code';
 
   // ══════════════════════════════════════════════════════════════════════════════
   //  LIFECYCLE
@@ -118,6 +125,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         ? systemLang
         : 'en';
     _loc = AppLocalization(_currentLang);
+
+    // Restore the last selected UI language if the user previously chose one.
+    _restoreSavedLanguage();
 
     // Compute BMI for the defaults so the screen opens with valid results.
     _calculate();
@@ -217,15 +227,38 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   // ══════════════════════════════════════════════════════════════════════════════
 
   void _calculate() {
+    // setState() tells Flutter: "The data changed. Rebuild the UI."
+    // Inside setState(), we update the derived values based on current user inputs.
     setState(() {
+      // Call the static BMI math function with current height and weight (in metric).
       bmi = BMICalculator.calculateBMI(height, weight);
+
+      // Get the classification (category + color) that matches this BMI value.
+      // Example: if BMI is 22, getClassification returns 'cat_n' (Normal) + green color.
       final result       = BMICalculator.getClassification(bmi);
-      classificationKey  = result.key;
-      classificationColor = result.color;
+      classificationKey  = result.key;   // e.g., 'cat_n', 'cat_o', 'cat_o3'
+      classificationColor = result.color; // e.g., green, orange, red
     });
   }
 
-  void _changeLanguage(String langCode) {
+  Future<void> _restoreSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLang = prefs.getString(_prefKeyLanguage);
+
+    if (!mounted || savedLang == null) return;
+    if (!AppLocalization.languages.containsKey(savedLang)) return;
+    if (savedLang == _currentLang) return;
+
+    setState(() {
+      _currentLang = savedLang;
+      _loc = AppLocalization(savedLang);
+    });
+  }
+
+  Future<void> _changeLanguage(String langCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefKeyLanguage, langCode);
+
     setState(() {
       _currentLang = langCode;
       _loc         = AppLocalization(langCode);
@@ -988,8 +1021,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               ...AppLocalization.languages.entries.map((entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: BrutalistContainer(
-                  onTap: () {
-                    _changeLanguage(entry.key);
+                  onTap: () async {
+                    await _changeLanguage(entry.key);
+                    if (!dialogContext.mounted) return;
                     Navigator.pop(dialogContext);
                   },
                   backgroundColor: entry.key == _currentLang
@@ -1048,22 +1082,26 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   /// A circular button used for all +/- controls in the app.
   /// Default sizes match across age, weight, and height cards.
+  /// 
+  /// This "custom widget factory" method demonstrates how to build reusable
+  /// button patterns in Dart. Instead of repeating the same code 6+ times,
+  /// we define it once and pass different icons and callbacks.
   Widget _buildRoundButton(
-    IconData icon,
-    VoidCallback onTap, {
-    double iconSize = 24,
-    EdgeInsets padding = const EdgeInsets.all(12),
+    IconData icon,                            // The icon to show (Icons.add or Icons.remove)
+    VoidCallback onTap, {                     // Function called when tapped
+    double iconSize = 24,                     // Icon size in logical pixels
+    EdgeInsets padding = const EdgeInsets.all(12), // Space between border and icon
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap,  // When user taps, call the callback function
       child: Container(
         padding: padding,
         decoration: BoxDecoration(
-          color: Colors.black,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black, width: 2),
+          color: Colors.black,                      // Solid black fill
+          shape: BoxShape.circle,                   // Perfectly round, not rectangle
+          border: Border.all(color: Colors.black, width: 2), // Dark border
         ),
-        child: Icon(icon, color: Colors.white, size: iconSize),
+        child: Icon(icon, color: Colors.white, size: iconSize), // White icon on black
       ),
     );
   }

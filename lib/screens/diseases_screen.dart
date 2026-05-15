@@ -25,18 +25,33 @@ import '../utils/disease_data.dart';
 import '../widgets/brutalist_widgets.dart';
 
 // ── Internal metadata for each category ──────────────────────────────────
-// Keeps all the display info for a single row alongside its logic key.
+// Keeps all the display info for a single BMI category alongside its logic key.
+// Think of this as a "mini-struct" that groups related data together.
+//
+// Why not use strings and ints scattered around? This class makes the code
+// more organized and less error-prone (you can't accidentally mix up a color and a range).
 class _CategoryMeta {
   /// The localization + disease-data key (e.g., 'cat_o1').
+  /// Used to:
+  ///   - Look up the category name in AppLocalization (to get translated text)
+  ///   - Fetch the health risks from DiseaseData.getRisks()
+  ///   - Identify which category the user tapped
   final String key;
 
   /// Human-readable BMI range string shown in the header badge.
+  /// Examples: '< 16', '16 - 17', '18.5 - 25', '> 40'
+  /// Purely for display in the UI — not used for logic.
   final String range;
 
   /// The official category color used throughout the app.
+  /// Provides visual consistency: green (normal), orange (overweight), red (obese), etc.
+  /// Same color used in the main calculator, classification table, and here.
   final Color color;
 
-  /// True only for the 'cat_n' (normal) category.
+  /// True only for the 'cat_n' (normal/healthy) category.
+  /// This flag determines how the card content is rendered:
+  ///   - If true: show a friendly "✓ Healthy range — no elevated disease risk." message
+  ///   - If false: show a bullet list of health risks
   final bool isNormal;
 
   const _CategoryMeta(this.key, this.range, this.color, this.isNormal);
@@ -44,13 +59,35 @@ class _CategoryMeta {
 
 /// Displays health risks associated with each BMI classification.
 ///
-/// When [highlightCategoryKey] is provided, the screen auto-scrolls so that
-/// category card is visible and gives it a subtle colored background.
+/// **How it works:**
+/// - Shows all 8 BMI categories in a scrollable list.
+/// - Each category card displays:
+///   * Its name (e.g., "OVERWEIGHT"), color indicator, and BMI range (e.g., "25 - 30")
+///   * For the normal category: a friendly "✓ Healthy range" message in green
+///   * For all other categories: a bulleted list of health risks (e.g., "Increased risk of Type 2 diabetes")
+///
+/// **Navigation & Highlighting:**
+/// - If [highlightCategoryKey] is provided (user tapped a row from the calculator),
+///   the screen auto-scrolls so that specific category is visible at the top.
+/// - The highlighted card gets a tinted background and larger shadow for emphasis.
+///
+/// **Example flow:**
+/// 1. User on CalculatorScreen taps the "OVERWEIGHT" row in the classification table
+/// 2. DiseasesScreen opens with highlightCategoryKey = 'cat_o'
+/// 3. Page auto-scrolls to show the Overweight card prominently
+/// 4. User reads: "Increased risk of Type 2 diabetes", "High blood pressure", etc.
+/// 5. User taps back arrow to return to the calculator
 class DiseasesScreen extends StatefulWidget {
   /// The BMI category key that the user tapped to open this screen, or null.
+  ///
+  /// If provided (e.g., 'cat_o'), the screen will auto-scroll to show
+  /// that category and highlight it visually.
+  ///
+  /// If null, the screen simply shows the full list without pre-scrolling.
   final String? highlightCategoryKey;
 
-  /// The app's current localization bundle (for translated strings and RTL).
+  /// The app's current localization bundle (for translated strings and RTL layout).
+  /// Ensures all category names and health risk text appear in the user's language.
   final AppLocalization localization;
 
   const DiseasesScreen({

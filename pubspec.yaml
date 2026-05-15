@@ -12,7 +12,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^6.1.0
   flutter_animate: ^4.5.0
-  google_mobile_ads: ^8.0.0
+  google_mobile_ads:
+    path: third_party/google_mobile_ads
   shared_preferences: ^2.5.5
 
 dev_dependencies:
@@ -29,3 +30,12 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/icon/app_icon.png"
   min_sdk_android: 21
+
+dependency_overrides:
+  google_mobile_ads:
+    path: third_party/google_mobile_ads
+  shared_preferences_android:
+    path: third_party/shared_preferences_android-2.4.11
+  webview_flutter_android:
+    path: third_party/webview_flutter_android-4.12.0
+

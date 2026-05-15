@@ -62,6 +62,7 @@ void main() async {
   // Before calling any Flutter service (like SystemChrome), we must ensure
   // the Flutter engine and the native Android/iOS layer are connected.
   // This call is required whenever you `await` something before `runApp()`.
+  // Think of it as saying "Hey Flutter, are you ready to talk to the OS?"
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Step 2: Detect screen size for orientation policy ─────────────────────
