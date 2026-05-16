@@ -4,6 +4,7 @@
 - App bundle: `build/app/outputs/bundle/release/app-release.aab`
 - Version: `1.1.0+6`
 - Release notes: `documentation/PLAY_CONSOLE_RELEASE_NOTES_1.1.0+6.md`
+- Store listing copy: `documentation/PLAY_CONSOLE_STORE_LISTING_1.1.0+6.md`
 
 ## Steps in Play Console
 1. Open your app in Google Play Console.

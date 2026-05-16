@@ -236,6 +236,9 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
     int index,
     AppLocalization loc,
   ) {
+    final bodyTextColor = isHighlighted ? Colors.white : const Color(0xFF1A1A1A);
+    final dividerColor = isHighlighted ? Colors.white24 : Colors.black12;
+
     return BrutalistContainer(
       // Tint the background with a very faint version of the category color
       // to visually highlight the card the user tapped.
@@ -297,7 +300,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
           // Thin divider between header and risk list.
           const SizedBox(height: 10),
-          const Divider(color: Colors.black12, height: 1),
+          Divider(color: dividerColor, height: 1),
           const SizedBox(height: 10),
 
           // ── RISK CONTENT ────────────────────────────────────────────
@@ -347,9 +350,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                           Expanded(
                             child: Text(
                               risk,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 height: 1.45,
+                                color: bodyTextColor,
                               ),
                             ),
                           ),
