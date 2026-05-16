@@ -21,9 +21,9 @@ code.language-dart {
   <li>👤 استقبال مدخلات المستخدم: العمر، الوزن، الطول، الجنس.</li>
   <li>⚡ حساب النتائج مباشرة عند أي تغيير.</li>
   <li>📱🖥️ عرض مختلف للهاتف والتابلت.</li>
-  <li>🌍 دعم تغيير اللغة (عربي/إنجليزي) داخل نفس الشاشة.</li>
+  <li>🌍 دعم تغيير اللغة (عربي/إنجليزي) داخل نفس الشاشة من قائمة ⋮.</li>
   <li>⚖️📏 دعم وحدات قياس مختلفة (kg/lb و cm/ft+in).</li>
-  <li>📚 عرض نموذج تعليمي عند أول تشغيل للتطبيق.</li>
+  <li>📚 عرض نموذج تعليمي عند أول تشغيل للتطبيق، مع خيار إعادة عرضه من قائمة ⋮.</li>
   <li>📺 عرض إعلانات Banner من Google AdMob.</li>
   <li>🏥 صفوف التصنيفات قابلة للتفاعل (Tappable) - تفتح شاشة الأمراض المرتبطة بكل فئة.</li>
 </ul>
@@ -841,35 +841,45 @@ void _showUnitDialog(String title, List<String> options, String currentOption, F
 }
 ```
 
-## 4.8 🌍 \_showLanguageDialog() - تغيير اللغة داخل الشاشة
+## 4.8 🌍 \_showLanguageDialog() - تغيير اللغة + خيار عرض النموذج التعليمي
 
 <div style="background:#f0fdf4;border:1px solid #4ade80;border-radius:12px;padding:12px 14px;color:#0f172a;">
 <b>🎯 الدور الرئيسي</b><br>
-هذه الدالة تعرض نافذة تغيير اللغة من داخل الشاشة نفسها، بدون الحاجة للخروج من الصفحة أو إعادة تشغيل التطبيق.
+هذه الدالة تعرض نافذة تغيير اللغة من داخل الشاشة نفسها، مع إضافة خيار للمستخدم لعرض النموذج التعليمي في أي وقت، وكل ذلك بدون الحاجة للخروج من الصفحة أو إعادة تشغيل التطبيق.
 
-<br><br><b>⚙️ كيف تختلف عن \_showUnitDialog؟</b>
+<br><br><b>⚙️ المكونات الرئيسية:</b>
 
 <ul>
-  <li>الشكل العام متشابه.</li>
-  <li>لكن البيانات هنا تأتي من <b>AppLocalization.languages</b>.</li>
-  <li>وعند اختيار لغة جديدة يتم استدعاء <b>_changeLanguage(entry.key)</b>.</li>
+  <li><b>فئات اللغات</b>: قائمة من جميع اللغات المدعومة من AppLocalization.</li>
+  <li><b>زر عرض النموذج التعليمي</b>: يسمح للمستخدم بإعادة عرض التعليمات في أي وقت بلون سماوي مميز (0xFF5CE1E6).</li>
+  <li>كل خيار يحتوي على زر راديو يمنح feedback بصري واضح.</li>
 </ul>
 
-<b>🔁 ماذا يحدث بعد اختيار اللغة؟</b>
+<b>🔁 ماذا يحدث خطوة بخطوة؟</b>
 
 <ol>
-  <li>يتغير <b>_currentLang</b>.</li>
-  <li>يعاد إنشاء كائن <b>_loc</b>.</li>
-  <li>تعمل الشاشة rebuild.</li>
-  <li>تتغير النصوص واتجاه الواجهة فورا.</li>
+  <li>يختار المستخدم لغة من القائمة.</li>
+  <li>يتم استدعاء <b>_changeLanguage(entry.key)</b> بشكل async.</li>
+  <li>تحفظ اللغة الجديدة في SharedPreferences.</li>
+  <li>يتم إغلاق الحوار تلقائيا بعد اختيار اللغة.</li>
+  <li>الواجهة rebuild فوراً بالنصوص الجديدة والاتجاه المناسب.</li>
 </ol>
 
-<b>🧠 لماذا هذا ممتاز لتجربة المستخدم؟</b>
+<b>📌 خيار النموذج التعليمي:</b>
 
 <ul>
-  <li>لأن المستخدم يرى أثر اختياره مباشرة.</li>
-  <li>ولأن تغيير اللغة لا يحتاج خطوات إضافية.</li>
-  <li>كما أن نفس البنية قابلة للتوسع إذا أضيفت لغات جديدة لاحقا.</li>
+  <li>عند الضغط: يغلق الحوار أولاً ثم يفتح TutorialScreen.</li>
+  <li>هذا يتجنب مشاكل التنقل بين الشاشات.</li>
+  <li>يمكن الوصول له بسهولة دون الحاجة للذهاب لقوائم أخرى.</li>
+</ul>
+
+<b>🧠 لماذا هذا ممتاز؟</b>
+
+<ul>
+  <li>توحيد الوصول للإعدادات (اللغة والنموذج التعليمي) في مكان واحد.</li>
+  <li>المستخدم يرى أثر اختياره مباشرة.</li>
+  <li>التجربة سلسة بدون تحميلات أو انتقالات طويلة.</li>
+  <li>البنية قابلة للتوسع إذا أضيفت خيارات إعدادات جديدة لاحقاً.</li>
 </ul>
 </div>
 
@@ -892,8 +902,16 @@ Dialog
                     │               ├─ SizedBox
                     │               └─ Text (language name)
                     ├─ SizedBox
+                    │
+                    ├─ BrutalistContainer (cyan, Show Tutorial button)
+                    │   └─ Row (mainAxisAlignment.center)
+                    │       ├─ Icon (play_circle_outline)
+                    │       ├─ SizedBox
+                    │       └─ Text ('show_tutorial')
+                    │
+                    ├─ SizedBox
                     └─ BrutalistButton (Close - Red)
-```
+``` 
 
 <div style="background:#ecfeff;border:1px solid #22d3ee;border-radius:10px;padding:10px 12px;margin-top:8px;color:#0f172a;">
 📌 <b>للمخطط التفصيلي</b> راجع: <b>widget_trees.md</b>
@@ -916,11 +934,13 @@ void _showLanguageDialog() {
           children: [
             Text(_loc.translate('select_language'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
             const SizedBox(height: 20),
+            // Language options
             ...AppLocalization.languages.entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: BrutalistContainer(
-                onTap: () {
-                  _changeLanguage(entry.key);
+                onTap: () async {
+                  await _changeLanguage(entry.key);
+                  if (!dialogContext.mounted) return;
                   Navigator.pop(dialogContext);
                 },
                 backgroundColor: entry.key == _currentLang ? const Color(0xFFFFDE59) : Colors.white,
@@ -935,6 +955,27 @@ void _showLanguageDialog() {
               ),
             )),
             const SizedBox(height: 8),
+            // "SHOW TUTORIAL" button — cyan to stand out from the language rows
+            BrutalistContainer(
+              onTap: () async {
+                Navigator.pop(dialogContext); // Close dialog first
+                await _navigateToTutorial();
+              },
+              backgroundColor: const Color(0xFF5CE1E6),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_circle_outline, color: Colors.black, size: 20),
+                  const SizedBox(width: 10),
+                  Text(
+                    _loc.translate('show_tutorial'),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             BrutalistButton(
               label: _loc.translate('close'),
               color: const Color(0xFFD32F2F),
@@ -946,7 +987,7 @@ void _showLanguageDialog() {
     ),
   );
 }
-```
+``` 
 
 <hr style="border:none;height:3px;background:linear-gradient(90deg,#38bdf8,#f97316,#22c55e);border-radius:999px;" />
 
